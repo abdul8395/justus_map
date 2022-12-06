@@ -106,3 +106,8 @@ input[type="radio"], input[type="checkbox"] {
 .sidebar_background{
   /* background-color: white !important; */
 }
+
+.leaflet-control-locate {
+  display: none !important;
+  }
+  

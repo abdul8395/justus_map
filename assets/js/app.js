@@ -53,6 +53,40 @@ var mylayercontrol= L.control.layers(baseLayers,overLays).addTo(map);
 
 
 
+L.DomEvent.on(document.getElementById('btnGetLoc'), 'click', function(){
+  // map.locate({setView: true, maxZoom: 16});
+  $('.leaflet-control-locate-location-arrow')[0].click()
+})
+
+
+
+// function onLocationFound(e) {
+//   var radius = e.accuracy;
+
+//   // L.marker(e.latlng).addTo(map)
+     
+
+//   L.circle(e.latlng, radius).addTo(map)
+//   .bindPopup("You are within " + radius + " meters from this point").openPopup();
+// }
+
+// map.on('locationfound', onLocationFound);
+
+
+
+
+var lc = L.control
+  .locate({
+    position: "topright",
+    strings: {
+      title: "Show me where I am, yo!"
+    }
+  })
+  .addTo(map);
+
+
+
+
 
 
 
