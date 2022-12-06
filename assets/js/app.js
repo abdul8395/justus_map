@@ -85,6 +85,26 @@ var lc = L.control
   .addTo(map);
 
 
+  
+var circlemarker
+
+map.on('click', function(e) {
+  console.log(e.latlng.lat + ", " + e.latlng.lng)
+  fetch("https://nominatim.openstreetmap.org/search.php?q="+e.latlng.lat+","+e.latlng.lng+"&polygon_geojson=1&format=json")
+    .then(response => response.json())
+    .then(j => {
+      var address=j[0].display_name
+      console.log(address)
+      if(map.hasLayer(circlemarker)){
+        map.removeLayer(circlemarker)
+      }
+      circlemarker=L.circle([e.latlng.lat, e.latlng.lng], 0).addTo(map)
+      .bindPopup(address).openPopup();
+      circlemarker.setStyle({color: 'red'});
+  })
+});
+
+
 
 
 
