@@ -111,6 +111,151 @@ var lc = L.control
   .addTo(map);
 
 
+
+
+
+  var drawnItems = new L.FeatureGroup();
+  map.addLayer(drawnItems);
+
+  var drawControl = new L.Control.Draw({
+    draw: {
+      position: 'topleft',
+      polygon: {
+        title: 'Draw a polygon!',
+        allowIntersection: false,
+        drawError: {
+          color: '#b00b00',
+          timeout: 1000
+        },
+        shapeOptions: {
+          color: 'red'
+        },
+        showArea: true
+      },
+      polyline: {
+        metric: false
+      },
+      circle: {
+        shapeOptions: {
+          color: '#662d91'
+        }
+      }
+    },
+    edit: {
+      featureGroup: drawnItems
+    }
+  });
+  // map.addControl(drawControl);
+
+  map.on('draw:created', function (e) {
+    var type = e.layerType,
+      layer = e.layer;
+
+    if (type === 'marker') {
+      layer.bindPopup('A popup!');
+    }
+
+    drawnItems.addLayer(layer);
+
+
+
+
+    var layer = e.layer,
+    feature = layer.feature = layer.feature || {}; // Intialize layer.feature
+    feature.type = feature.type || "Feature"; // Intialize feature.type
+    var props = feature.properties = feature.properties || {}; // Intialize feature.properties
+    props.title = "my title";
+    props.content = "my content";
+    var idIW = L.popup();
+    var content = '<b>Territory ID:</b><br/><input id="id" placeholder="Enter ID" type="text"/><br><b>Name:</b><br/><input id="Name" placeholder="Enter Name" type="text"/><br><b>Email:</b><br/><input id="Email" placeholder="Enter Email" type="text"/><br/><br/><input type="button" id="okBtn" value="Save" onclick="saveIdIW()"/>';
+    idIW.setContent(content);
+    idIW.setLatLng(e.layer.getBounds().getCenter());
+    idIW.openOn(map);
+    drawnItems.addLayer(layer);
+  });
+
+
+
+
+
+  
+  var options = {
+    position: 'topright', // toolbar position, options are 'topleft', 'topright', 'bottomleft', 'bottomright'
+    drawMarker: false,  // adds button to draw markers
+    drawPolygon: true,  // adds button to draw a polygon
+    drawPolyline: false,  // adds button to draw a polyline
+    drawCircle: false,  // adds button to draw a cricle
+    editPolygon: true,  // adds button to toggle global edit mode
+    deleteLayer: true,   // adds a button to delete layers
+    drawText: false,   // adds a button to delete layers        
+    cutPolygon: false,   // adds a button to delete layers        
+    drawRectangle: false,   // adds a button to delete layers        
+    dragMode: false,   // adds a button to delete layers        
+    drawCircleMarker: false,   // adds a button to delete layers        
+    rotateMode: false,   // adds a button to delete layers        
+      
+   
+};
+
+// add leaflet.pm controls to the map
+
+map.pm.addControls(options);
+
+
+// get array of all available shapes
+map.pm.Draw.getShapes()
+
+// disable drawing mode
+map.pm.disableDraw('Polygon');
+
+// listen to when drawing mode gets enabled
+map.on('pm:drawstart', function(e) {
+  console.log(e)
+});
+
+// listen to when drawing mode gets disabled
+map.on('pm:drawend', function(e) {
+  console.log(e)
+});
+
+// listen to when a new layer is created
+map.on('pm:create', function(e) {
+  console.log(e)
+
+
+  // var layer = e.layer,
+  // feature = layer.feature = layer.feature || {}; // Intialize layer.feature
+  // feature.type = feature.type || "Feature"; // Intialize feature.type
+  // var props = feature.properties = feature.properties || {}; // Intialize feature.properties
+  // props.title = "my title";
+  // props.content = "my content";
+  var idIW = L.popup();
+  var content = '<b>Territory ID:</b><br/><input id="id" placeholder="Enter ID" type="text"/><br><b>Name:</b><br/><input id="Name" placeholder="Enter Name" type="text"/><br><b>Email:</b><br/><input id="Email" placeholder="Enter Email" type="text"/><br/><br/><input type="button" id="okBtn" value="Save" onclick="saveIdIW()"/>';
+  idIW.setContent(content);
+  idIW.setLatLng(e.layer.getBounds().getCenter());
+  idIW.openOn(map);
+  // drawnItems.addLayer(layer);
+
+  // listen to changes on the new layer
+  e.layer.on('pm:edit', function(x) {
+  console.log('edit', x)
+  });
+});
+
+
+
+
+map.pm.setGlobalOptions({
+  limitMarkersToCount: 20
+})
+
+
+
+
+
+
+
+
   
 var circlemarker
 // map.on('zoomend',function(e){
@@ -122,8 +267,6 @@ map.on('click', function(e) {
   console.log(e.latlng.lat + ", " + e.latlng.lng)
   var currZoom = map.getZoom();
     if(currZoom > 16){
-      console.log(currZoom)
-
       if(map.hasLayer(circlemarker)){
         map.removeLayer(circlemarker)
       }
@@ -131,8 +274,8 @@ map.on('click', function(e) {
       .bindPopup("Address: <br>Latitude: "+e.latlng.lat+"<br>"+"Longitude: "+e.latlng.lng).openPopup();
       circlemarker.setStyle({color: 'red'});
 
-      
 
+      console.log(currZoom)
       fetch("https://nominatim.openstreetmap.org/search.php?q="+e.latlng.lat+","+e.latlng.lng+"&polygon_geojson=1&format=json")
       .then(response => response.json())
       .then(j => {
@@ -145,6 +288,9 @@ map.on('click', function(e) {
         .bindPopup("Address: "+address+"<br>Latitude: "+e.latlng.lat+"<br>"+"Longitude: "+e.latlng.lng).openPopup();
         circlemarker.setStyle({color: 'red'});
       })
+
+     
+
     } 
 });
 
@@ -191,9 +337,10 @@ function getTerritoriesData() {
 
 // getTerritoriesData();
 
-
+var mycount=0
+var territories_lyr
 setTimeout(function(){
-  var territories_lyr=L.geoJson( territories, {
+    territories_lyr=L.geoJson( territories, {
     style: function(feature){
       // var fillColor,
       var colorId = feature.properties.color;
@@ -228,7 +375,57 @@ setTimeout(function(){
 
     },
     onEachFeature: function( feature, layer ){
+      layer.on({
+        click: layerclick
+      })
       // console.log(feature.properties.id)
+     
+
+      // drawnItems.addLayer(layer);
+      // map.pm.addLayer(layer);
+     
+    }
+  })
+  map.addLayer(territories_lyr)
+},200);
+
+setTimeout(() => {
+  territories_lyr.on('pm:edit', function (e) {
+    console.log(e);
+  });
+}, 500);
+
+
+function layerclick(e) {
+  console.log(mycount+1)
+  var layer = e.target;
+  // var poly_id=layer.defaultOptions.id
+  var f_id=layer.feature.properties.id
+
+
+
+  var idIW = L.popup();
+
+
+
+
+  var currZoom = map.getZoom();
+    if(currZoom > 16){
+      // console.log(currZoom)
+   
+
+      fetch("https://nominatim.openstreetmap.org/search.php?q="+e.latlng.lat+","+e.latlng.lng+"&polygon_geojson=1&format=json")
+      .then(response => response.json())
+      .then(j => {
+        var address=j[0].display_name
+        console.log(address)
+        var content='' 
+        content=content+address
+        content=content+"Address: "+address+"<br>Latitude: "+e.latlng.lat+"<br>"+"Longitude: "+e.latlng.lng
+        idIW.setContent(content);
+      })
+
+    }else{
       Papa.parse(urlGoogleSheetsTerritoriesData, {
         download: true,
         header: true,
@@ -241,12 +438,13 @@ setTimeout(function(){
           territories.features.map((geoJsonItem) => {
             let stateId = geoJsonItem.properties.id;
             let filteredCsvData = mapTerritoryData.filter(function (e) {
-              if(e.terr_id==feature.properties.id){
-                var currZoom = map.getZoom();
-                if(currZoom <= 16){
-                  console.log(currZoom)
-                  layer.bindPopup( "<h4> Territory: " + feature.properties.id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>")
-                }
+              if(e.terr_id==f_id){
+            
+                  // console.log(currZoom)
+                  var content='' 
+                  content=content+"<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>"
+                  // layer.bindPopup( "<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>").openPopup()
+                  idIW.setContent(content);
               }
               // console.log(e.terr_id+","+e.rep_name+","+e.rep_email)
               // return parseInt(e.terr_id) === stateId;
@@ -258,11 +456,15 @@ setTimeout(function(){
           });
         },
       });
-     
     }
-  })
-  map.addLayer(territories_lyr)
-},200);
+    
+
+    
+    idIW.setLatLng(e.latlng);
+    idIW.openOn(map);
+}
+
+
 
 
   
