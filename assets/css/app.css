@@ -21,6 +21,30 @@ input[type="radio"], input[type="checkbox"] {
   height: 100%;
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
+
+
+.states_list {
+  overflow: auto;
+  height: 550px;
+  max-height: 70%;
+  margin-left: 5%;
+  background-color: white;
+  padding: 10px;
+}
+.states_list .territory-item {
+  margin: 1rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 1rem;
+}
+
+.states_list .territory-item a {
+  text-decoration: none;
+  font-size: 17px;
+  color: black;
+  font-weight: 100;
+}
+
+
 #loading {
   position: absolute;
   width: 220px;

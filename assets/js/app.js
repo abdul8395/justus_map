@@ -131,7 +131,7 @@ map.on('click', function(e) {
       .bindPopup("Address: <br>Latitude: "+e.latlng.lat+"<br>"+"Longitude: "+e.latlng.lng).openPopup();
       circlemarker.setStyle({color: 'red'});
 
-      
+
 
       fetch("https://nominatim.openstreetmap.org/search.php?q="+e.latlng.lat+","+e.latlng.lng+"&polygon_geojson=1&format=json")
       .then(response => response.json())
@@ -191,9 +191,10 @@ function getTerritoriesData() {
 
 // getTerritoriesData();
 
-
+var territories_lyr
+var tlyr_arr=[]
 setTimeout(function(){
-  var territories_lyr=L.geoJson( territories, {
+   territories_lyr=L.geoJson( territories, {
     style: function(feature){
       // var fillColor,
       var colorId = feature.properties.color;
@@ -229,40 +230,74 @@ setTimeout(function(){
     },
     onEachFeature: function( feature, layer ){
       // console.log(feature.properties.id)
-      Papa.parse(urlGoogleSheetsTerritoriesData, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: function (results) {
-          mapTerritoryData = results.data;
-    
-          let sheetColumns = Object.keys(mapTerritoryData[0]);
-    
-          territories.features.map((geoJsonItem) => {
-            let stateId = geoJsonItem.properties.id;
-            let filteredCsvData = mapTerritoryData.filter(function (e) {
-              if(e.terr_id==feature.properties.id){
-                var currZoom = map.getZoom();
-                if(currZoom <= 16){
-                  console.log(currZoom)
-                  layer.bindPopup( "<h4> Territory: " + feature.properties.id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>")
-                }
-              }
-              // console.log(e.terr_id+","+e.rep_name+","+e.rep_email)
-              // return parseInt(e.terr_id) === stateId;
-            });
-    
-            sheetColumns.forEach((col, i) => {
-              // geoJsonItem.properties[col] = filteredCsvData[0][col];
-            });
-          });
-        },
-      });
+      var currZoom = map.getZoom();
+      if(currZoom <= 16){
+        console.log(currZoom)
+        layer.bindPopup( "<h4> Territory: " + feature.properties.id )
+        // layer.bindPopup( "<h4> Territory: " + feature.properties.id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>")
+      }
+      tlyr_arr.push(layer)
      
     }
   })
   map.addLayer(territories_lyr)
 },200);
+
+
+
+
+
+
+
+
+
+
+
+
+function generateList() {
+  const statesdiv = document.querySelector('#states_list');
+  var str=''
+  Papa.parse(urlGoogleSheetsTerritoriesData, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function (results) {
+      mapTerritoryData = results.data;
+      for(var i=0; i<mapTerritoryData.length; i++ ){
+        str=str+'<div class="territory-item">';
+         str=str+'<a href="#" onclick="flyTotritory('+mapTerritoryData[i].terr_id+')" id="terr_'+mapTerritoryData[i].terr_id+'">'+mapTerritoryData[i].terr_id+":  "+mapTerritoryData[i].rep_name+'</a>';
+         str=str+'</div>'
+      }
+      $("#states_list").html(str)
+    },
+  });
+  
+}
+
+setTimeout(function(){
+  generateList();
+},500)
+
+function flyTotritory(tritory_id) {
+  console.log(tritory_id)
+  for(var i=0; i<tlyr_arr.length; i++ ){
+    if(tlyr_arr[i].feature.properties.id==tritory_id){
+      var latlng= tlyr_arr[i].getBounds().getCenter()
+      map.flyTo(latlng, 12, {
+          duration: 3
+      });
+      // map.fitBounds(territories_lyr.pm._layers[i].getBounds(), {padding: [50, 50]});
+      setTimeout(() => {
+        L.popup({closeButton: true, offset: L.point(0, -8)})
+        .setLatLng(latlng)
+        .setContent("<h4> Territory: " + tritory_id )
+        // .setContent(makePopupContent(tritory))
+        .openOn(map);
+      }, 2000);
+    }
+  }
+}
+
 
 
   

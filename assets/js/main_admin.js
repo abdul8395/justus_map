@@ -339,6 +339,7 @@ function getTerritoriesData() {
 
 var mycount=0
 var territories_lyr
+var tlyr_arr=[]
 setTimeout(function(){
     territories_lyr=L.geoJson( territories, {
     style: function(feature){
@@ -378,6 +379,7 @@ setTimeout(function(){
       layer.on({
         click: layerclick
       })
+      tlyr_arr.push(layer)
       // console.log(feature.properties.id)
      
 
@@ -432,28 +434,15 @@ function layerclick(e) {
         skipEmptyLines: true,
         complete: function (results) {
           mapTerritoryData = results.data;
-    
-          let sheetColumns = Object.keys(mapTerritoryData[0]);
-    
-          territories.features.map((geoJsonItem) => {
-            let stateId = geoJsonItem.properties.id;
             let filteredCsvData = mapTerritoryData.filter(function (e) {
               if(e.terr_id==f_id){
-            
                   // console.log(currZoom)
                   var content='' 
                   content=content+"<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>"
                   // layer.bindPopup( "<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>").openPopup()
                   idIW.setContent(content);
               }
-              // console.log(e.terr_id+","+e.rep_name+","+e.rep_email)
-              // return parseInt(e.terr_id) === stateId;
             });
-    
-            sheetColumns.forEach((col, i) => {
-              // geoJsonItem.properties[col] = filteredCsvData[0][col];
-            });
-          });
         },
       });
     }
@@ -463,6 +452,59 @@ function layerclick(e) {
     idIW.setLatLng(e.latlng);
     idIW.openOn(map);
 }
+
+
+
+
+
+function generateList() {
+  const statesdiv = document.querySelector('#states_list');
+  var str=''
+  Papa.parse(urlGoogleSheetsTerritoriesData, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function (results) {
+      mapTerritoryData = results.data;
+      for(var i=0; i<mapTerritoryData.length; i++ ){
+        str=str+'<div class="territory-item">';
+         str=str+'<a href="#" onclick="flyTotritory('+mapTerritoryData[i].terr_id+')" id="trr_'+mapTerritoryData[i].terr_id+'">'+mapTerritoryData[i].terr_id+":  "+mapTerritoryData[i].rep_name+'</a>';
+         str=str+'<br><p style="text-align: center;  font-size: 11px;">'+mapTerritoryData[i].rep_email+'</p>';
+         str=str+'</div>'
+      }
+      $("#states_list").html(str)
+    },
+  });
+  
+}
+
+setTimeout(function(){
+  generateList();
+},500)
+
+function flyTotritory(tritory_id) {
+  console.log(tritory_id)
+  for(var i=0; i<tlyr_arr.length; i++ ){
+    if(tlyr_arr[i].feature.properties.id==tritory_id){
+      var latlng= tlyr_arr[i].getBounds().getCenter()
+      map.flyTo(latlng, 12, {
+          duration: 3
+      });
+      // map.fitBounds(territories_lyr.pm._layers[i].getBounds(), {padding: [50, 50]});
+      setTimeout(() => {
+        L.popup({closeButton: true, offset: L.point(0, -8)})
+        .setLatLng(latlng)
+        .setContent("<h4> Territory: " + tritory_id )
+        // .setContent(makePopupContent(tritory))
+        .openOn(map);
+      }, 2000);
+    }
+  }
+}
+
+
+
+
 
 
 
