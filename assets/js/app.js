@@ -1,3 +1,6 @@
+var territories_data; 
+
+
 var map
 var dark  = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
 // var dark  = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png');
@@ -164,37 +167,14 @@ const urlGoogleSheetsTerritoriesData =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRmf6o6Xynlqv4UVrj_WMWn_oSXgRGnPDGvzCObrUwFoncct3iMHBnvHGwYKWSirMByMY4ExI_KSNan/pub?output=csv";
 
 
-function getTerritoriesData() {
-  Papa.parse(urlGoogleSheetsTerritoriesData, {
-    download: true,
-    header: true,
-    skipEmptyLines: true,
-    complete: function (results) {
-      mapTerritoryData = results.data;
 
-      let sheetColumns = Object.keys(mapTerritoryData[0]);
 
-      territories.features.map((geoJsonItem) => {
-        let stateId = geoJsonItem.properties.id;
-        let filteredCsvData = mapTerritoryData.filter(function (e) {
-          console.log(e.terr_id+","+e.rep_name+","+e.rep_email)
-          return parseInt(e.terr_id) === stateId;
-        });
 
-        sheetColumns.forEach((col, i) => {
-          geoJsonItem.properties[col] = filteredCsvData[0][col];
-        });
-      });
-    },
-  });
-}
-
-// getTerritoriesData();
 
 var territories_lyr
 var tlyr_arr=[]
 setTimeout(function(){
-   territories_lyr=L.geoJson( territories, {
+   territories_lyr=L.geoJson( territories_data, {
     style: function(feature){
       // var fillColor,
       var colorId = feature.properties.color;
@@ -241,7 +221,7 @@ setTimeout(function(){
     }
   })
   map.addLayer(territories_lyr)
-},200);
+},1000);
 
 
 

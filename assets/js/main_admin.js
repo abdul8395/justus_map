@@ -1,3 +1,4 @@
+var territories_data
 var map
 var dark  = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
 // var dark  = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png');
@@ -205,24 +206,24 @@ map.pm.addControls(options);
 // get array of all available shapes
 map.pm.Draw.getShapes()
 
+
+
 // disable drawing mode
 map.pm.disableDraw('Polygon');
 
 // listen to when drawing mode gets enabled
 map.on('pm:drawstart', function(e) {
-  console.log(e)
+  // console.log(e)
 });
 
 // listen to when drawing mode gets disabled
 map.on('pm:drawend', function(e) {
-  console.log(e)
+  // console.log(e)
 });
 
 // listen to when a new layer is created
 map.on('pm:create', function(e) {
-  console.log(e)
-
-
+  // console.log(e)
   // var layer = e.layer,
   // feature = layer.feature = layer.feature || {}; // Intialize layer.feature
   // feature.type = feature.type || "Feature"; // Intialize feature.type
@@ -238,9 +239,10 @@ map.on('pm:create', function(e) {
 
   // listen to changes on the new layer
   e.layer.on('pm:edit', function(x) {
-  console.log('edit', x)
+  // console.log('edit', x)
   });
 });
+
 
 
 
@@ -310,38 +312,12 @@ const urlGoogleSheetsTerritoriesData =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRmf6o6Xynlqv4UVrj_WMWn_oSXgRGnPDGvzCObrUwFoncct3iMHBnvHGwYKWSirMByMY4ExI_KSNan/pub?output=csv";
 
 
-function getTerritoriesData() {
-  Papa.parse(urlGoogleSheetsTerritoriesData, {
-    download: true,
-    header: true,
-    skipEmptyLines: true,
-    complete: function (results) {
-      mapTerritoryData = results.data;
-
-      let sheetColumns = Object.keys(mapTerritoryData[0]);
-
-      territories.features.map((geoJsonItem) => {
-        let stateId = geoJsonItem.properties.id;
-        let filteredCsvData = mapTerritoryData.filter(function (e) {
-          console.log(e.terr_id+","+e.rep_name+","+e.rep_email)
-          return parseInt(e.terr_id) === stateId;
-        });
-
-        sheetColumns.forEach((col, i) => {
-          geoJsonItem.properties[col] = filteredCsvData[0][col];
-        });
-      });
-    },
-  });
-}
-
-// getTerritoriesData();
 
 var mycount=0
 var territories_lyr
 var tlyr_arr=[]
 setTimeout(function(){
-    territories_lyr=L.geoJson( territories, {
+    territories_lyr=L.geoJson( territories_data, {
     style: function(feature){
       // var fillColor,
       var colorId = feature.properties.color;
@@ -389,13 +365,18 @@ setTimeout(function(){
     }
   })
   map.addLayer(territories_lyr)
-},200);
+},1000);
 
 setTimeout(() => {
   territories_lyr.on('pm:edit', function (e) {
-    console.log(e);
+    // console.log(e);
   });
-}, 500);
+  territories_lyr.on('pm:update', function (e) {
+    console.log(e.layer.feature);
+    console.log(JSON.stringify(e.layer.feature));
+    console.log(JSON.stringify(map.pm.Draw.getShapes()));
+  });
+}, 1400);
 
 
 function layerclick(e) {
