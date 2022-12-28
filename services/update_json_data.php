@@ -2,7 +2,7 @@
 
 $obj = $_REQUEST['myData'];
 
-file_put_contents('../assets/data/test.json',$obj);
+file_put_contents('../assets/data/tdata.json',$obj);
 
 
 

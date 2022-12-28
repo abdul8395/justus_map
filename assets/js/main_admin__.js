@@ -1,8 +1,5 @@
 var territories_data
 var map
-var polygon = null;
-var radiusCircle = null;
-var currentlayer;
 var dark  = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
 // var dark  = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png');
 
@@ -123,7 +120,7 @@ var lc = L.control
 
   var drawControl = new L.Control.Draw({
     draw: {
-      position: 'bottomleft',
+      position: 'topleft',
       polygon: {
         title: 'Draw a polygon!',
         allowIntersection: false,
@@ -136,39 +133,28 @@ var lc = L.control
         },
         showArea: true
       },
-      // polyline: {
-      //   metric: false
-      // },
-      // circle: {
-      //   shapeOptions: {
-      //     color: '#662d91'
-      //   }
-      // }
-      polyline:false,
-      rectangle: false,
-      circle: true,
-      circlemarker: false,
-      marker: false
-
+      polyline: {
+        metric: false
+      },
+      circle: {
+        shapeOptions: {
+          color: '#662d91'
+        }
+      }
     },
     edit: {
       featureGroup: drawnItems
     }
   });
-  map.addControl(drawControl);
+  // map.addControl(drawControl);
 
   map.on('draw:created', function (e) {
     var type = e.layerType,
       layer = e.layer;
-      currentlayer = layer;
+
     if (type === 'marker') {
-      radiusCircle = layer;
       layer.bindPopup('A popup!');
     }
-
-    if (type === 'polygon') {
-      polygon = layer;
-  }
 
     drawnItems.addLayer(layer);
 
@@ -188,99 +174,6 @@ var lc = L.control
     // idIW.openOn(map);
     // drawnItems.addLayer(layer);
   });
-
-
-  function ftn_findPopulation() {
-  
-        document.getElementById("div_output").innerHTML = "Please Wait...";
-        // ftn_findpoppoly(polygon);
-        ftn_findpop_circle(currentlayer.getLatLng().lat, currentlayer.getLatLng().lng, currentlayer.getRadius());
-  }
-  function ftn_findpop_circle(lat, lng, radius) {
-    lat = lat.toFixed(6);
-    lng = lng.toFixed(6);
-    radius = radius / 1000;
-    $.ajax({
-        url: 'https://www.freemaptools.com/ajax/ww-data/find-population-inside-radius/',
-        type: "GET",
-        crossDomain: true,
-        data: {
-            lat: lat,
-            lng: lng,
-            radius: radius,
-            key: 'JGgS6LSbJresHRfgA8',
-            user: 'fmt-2983'
-        },
-        success: function(result) {
-            if (result) {
-                displayResults(result.population, radius);
-            } else {
-                document.getElementById("div_output").innerHTML = "Error. No Results.";
-            }
-        },
-        error: function(x, y, z) {
-            console.log(y);
-        }
-    });
-}
-
-function displayResults(result, radius) {
-  result = numberWithCommas(result);
-  if ((result == 0) && (radius < 1)) {
-      document.getElementById("div_output").innerHTML = "The estimated population in the radius is " + result + ". Perhaps you need a larger radius.";
-  } else {
-      var words = capitalizeFirstLetter(numberToEnglish(result));
-      document.getElementById("div_output").innerHTML = "The estimated population in the radius is " + result + "<br />" + words;
-  }
-}
-
-  function round_decimals(original_number, decimals) {
-    var result1 = original_number * Math.pow(10, decimals);
-    var result2 = Math.round(result1);
-    var result3 = result2 / Math.pow(10, decimals);
-    return pad_with_zeros(result3, decimals);
-  }
-
-
-function ftn_findpoppoly(polygon) {
-  var coordinates = '';
-  var points = polygon.getLatLngs();
-  var thisArrPoints = points[0];
-  if (thisArrPoints.length > 0) {
-      for (i in thisArrPoints) {
-          coordinates += round_decimals(thisArrPoints[i].lng, 5) + "," + round_decimals(thisArrPoints[i].lat, 5) + ",0 ";
-      }
-      coordinates += round_decimals(thisArrPoints[0].lng, 5) + "," + round_decimals(thisArrPoints[0].lat, 5) + ",0";
-  }
-  $.ajax({
-      url: 'https://www.freemaptools.com/ajax/ww-data/find-population-inside-polygon/',
-      // url: 'ajax/ww-data/find-population-inside-polygon/',
-      type: "GET",
-      crossDomain: true,
-      data: {
-          coordinates: coordinates,
-          key: 'JGgS6LSbJresHRfgA8',
-          user: 'fmt-2983'
-      },
-      success: function(result) {
-          if (result) {
-              displayResultsPoly(result.population);
-          } else {
-              document.getElementById("div_output").innerHTML = "Error. No Results.";
-          }
-      },
-      error: function(x, y, z) {
-          console.log(y);
-      }
-  });
-}
-
-
-function displayResultsPoly(result) {
-  result = numberWithCommas(result);
-  var words = capitalizeFirstLetter(numberToEnglish(result));
-  document.getElementById("div_output").innerHTML = "The estimated population in the area is " + result + "<br />" + words;
-}
 
 
 

@@ -245,7 +245,7 @@ function generateList() {
       mapTerritoryData = results.data;
       for(var i=0; i<mapTerritoryData.length; i++ ){
         str=str+'<div class="territory-item">';
-         str=str+'<a href="#" onclick="flyTotritory('+mapTerritoryData[i].terr_id+')" id="terr_'+mapTerritoryData[i].terr_id+'">'+mapTerritoryData[i].terr_id+":  "+mapTerritoryData[i].rep_name+'</a>';
+         str=str+'<a href="#" onclick="flyTotritory('+mapTerritoryData[i].terr_id+')" id="terr_'+mapTerritoryData[i].terr_id+'">'+mapTerritoryData[i].terr_id+":  "+'Territory'+'</a>';
          str=str+'</div>'
       }
       $("#states_list").html(str)
