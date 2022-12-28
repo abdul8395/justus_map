@@ -100,7 +100,7 @@
                 <div id="div_output" name="div_output" style="color: green; margin-left:2%;"></div>
                 <br>
             
-                <div id="states_list" class="states_list" style="overflow: auto;height: 550px; max-height: 70%; margin-left: 5%;"></div>
+                <div id="states_list" class="states_list" style="overflow: auto;height: 475px; max-height: 60%; margin-left: 5%;"></div>
             </div>
 
           </div>
@@ -167,6 +167,16 @@ src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js">
     <script src="assets/data/tdata.js"></script>
     <script src="assets/js/uscounties.js"></script>
     <script src="assets/js/main_admin.js"></script>
+
+    <script>
+      $.getJSON('assets/data/tdata.json', function(jsonData) {
+        // console.log(jsonData)
+        territories_data = jsonData; 
+      });  
+      setTimeout(function(){
+        console.log(territories_data)
+      },1000)
+    </script>
 
    
 

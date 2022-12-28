@@ -91,9 +91,7 @@ var baseLayers = {
 "Google Sattellite Map": googleSat,
 "Open Street Map": openstreet,
 "Dark Map": dark,
-
-"plain": plain
-// "LGA Layer": lga
+"Plain Map": plain
 };
 
 
@@ -217,8 +215,9 @@ function saveIdIW(){
   var props = new_created_lyr.properties = new_created_lyr.properties || {}; // Intialize feature.properties
   props.id = popid;
   props.color = pcolor;
-  props.name = pname;
-  props.email = pEmail;
+  props.rep_name = pname;
+  props.rep_email = pEmail;
+  props.terr_id = popid;
   // console.log(new_created_lyr)
 
  territories_data.features.push(new_created_lyr);
@@ -239,6 +238,13 @@ function saveIdIW(){
             }
     });
     map.closePopup();
+    map.removeLayer(territories_lyr)
+    territories_lyr=new L.LayerGroup()
+    drawnItems.clearLayers();
+    maketerritories()
+    map.addLayer(territories_lyr)
+    $("#states_list").empty()
+    generateList();
     alert("New Polygon Added Successfully")
 },200)
 
@@ -321,8 +327,8 @@ const urlGoogleSheetsTerritoriesData =
 var mycount=0
 
 var tlyr_arr=[]
-
-    territories_lyr=L.geoJson( territories_data, {
+function maketerritories(){
+  territories_lyr=L.geoJson( territories_data, {
     style: function(feature){
       // var fillColor,
       var colorId = feature.properties.color;
@@ -369,8 +375,11 @@ var tlyr_arr=[]
      
     }
   })
+}
+setTimeout(function(){
+  maketerritories()
   map.addLayer(territories_lyr)
-
+},800)
 
 
 
@@ -413,15 +422,18 @@ var tlyr_arr=[]
 
 
 
+  setTimeout(function(){
+    
+    var overLays = {
+      "Territories Layer":territories_lyr,
+      "Counties Map Overlay": uscountieslyr,
+      // "Trees & Graphics": trees_layer,
+      // "Clouds": clouds_layer
+      };
+      var mylayercontrol= L.control.layers(baseLayers,overLays).addTo(map);
+  },1000)
 
-
-        var overLays = {
-          "Territories Layer":territories_lyr,
-          "Counties Map Overlay": uscountieslyr,
-          // "Trees & Graphics": trees_layer,
-          // "Clouds": clouds_layer
-          };
-          var mylayercontrol= L.control.layers(baseLayers,overLays).addTo(map);
+       
 
 
 
@@ -551,7 +563,7 @@ function generateList() {
 
 setTimeout(function(){
   generateList();
-},500)
+},800)
 
 var tlyr_arr_fly_index
 function flyTotritory(tritory_id) {

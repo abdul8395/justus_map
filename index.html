@@ -127,5 +127,16 @@
     <script src="assets/js/app.js"></script>
 
 
+    <script>
+      $.getJSON('assets/data/tdata.json', function(jsonData) {
+        // console.log(jsonData)
+        territories_data = jsonData; 
+      });  
+      setTimeout(function(){
+        console.log(territories_data)
+      },1000)
+    </script>
+
+
   </body>
 </html>

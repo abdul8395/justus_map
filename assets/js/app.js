@@ -69,8 +69,7 @@ var baseLayers = {
 "Google Sattellite Map": googleSat,
 "Open Street Map": openstreet,
 "Dark Map": dark,
-
-"plain": plain
+"Plain Map": plain
 // "LGA Layer": lga
 };
 var overLays = {
@@ -221,7 +220,7 @@ setTimeout(function(){
     }
   })
   map.addLayer(territories_lyr)
-},200);
+},1000);
 
 
 
