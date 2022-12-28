@@ -55,7 +55,7 @@
            <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;TOC</a></li>
             -->
             <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;TOC</a></li>
-            <li class="hidden-xs" style="margin-left: 480px;"><a class="navbar-brand" href="#">Admin,    VA_Territory_Map  </a></li>
+            <!-- <li class="hidden-xs" style="margin-left: 480px;"><a class="navbar-brand" href="#">Admin,    VA_Territory_Map  </a></li> -->
 
             <!-- <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="about-btn"><i class="fa fa-question-circle white"></i>&nbsp;&nbsp;About</a></li>
            <li class="dropdown">
@@ -139,17 +139,11 @@ href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css
 src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js">
 </script>
 
+
+    <script src="assets/data/tdata.js"></script>
     <script src="assets/js/main_admin.js"></script>
 
-    <script>
-      $.getJSON('assets/data/tdata.json', function(jsonData) {
-        // console.log(jsonData)
-        territories_data = jsonData; 
-      });  
-      setTimeout(function(){
-        console.log(territories_data)
-      },1000)
-    </script>
+   
 
   </body>
 </html>

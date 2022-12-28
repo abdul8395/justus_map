@@ -1,4 +1,4 @@
-var territories_data
+
 var map
 var polygon = null;
 var radiusCircle = null;

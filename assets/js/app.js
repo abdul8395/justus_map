@@ -1,4 +1,4 @@
-var territories_data; 
+
 
 
 var map
@@ -212,7 +212,7 @@ setTimeout(function(){
       // console.log(feature.properties.id)
       var currZoom = map.getZoom();
       if(currZoom <= 16){
-        console.log(currZoom)
+        // console.log(currZoom)
         layer.bindPopup( "<h4> Territory: " + feature.properties.id )
         // layer.bindPopup( "<h4> Territory: " + feature.properties.id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>")
       }
@@ -237,20 +237,13 @@ setTimeout(function(){
 function generateList() {
   const statesdiv = document.querySelector('#states_list');
   var str=''
-  Papa.parse(urlGoogleSheetsTerritoriesData, {
-    download: true,
-    header: true,
-    skipEmptyLines: true,
-    complete: function (results) {
-      mapTerritoryData = results.data;
-      for(var i=0; i<mapTerritoryData.length; i++ ){
-        str=str+'<div class="territory-item">';
-         str=str+'<a href="#" onclick="flyTotritory('+mapTerritoryData[i].terr_id+')" id="terr_'+mapTerritoryData[i].terr_id+'">'+mapTerritoryData[i].terr_id+":  "+'Territory'+'</a>';
-         str=str+'</div>'
-      }
-      $("#states_list").html(str)
-    },
-  });
+  for(var i=0; i<territories_data.features.length; i++ ){
+    str=str+'<div class="territory-item">';
+     str=str+'<a href="#" onclick="flyTotritory('+territories_data.features[i].properties.terr_id+')" id="terr_'+territories_data.features[i].properties.terr_id+'">'+territories_data.features[i].properties.terr_id+":  "+'Territory'+'</a>';
+     str=str+'</div>'
+  }
+  $("#states_list").html(str)
+  
   
 }
 

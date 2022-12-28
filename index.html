@@ -48,7 +48,7 @@
            <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;TOC</a></li>
             -->
             <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;TOC</a></li>
-            <li class="hidden-xs" style="margin-left: 480px;"><a class="navbar-brand" href="#">JUSTUSCADE,    VA_Territory_Map  </a></li>
+            <!-- <li class="hidden-xs" style="margin-left: 480px;"><a class="navbar-brand" href="#">JUSTUSCADE,    VA_Territory_Map  </a></li> -->
 
             <!-- <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="about-btn"><i class="fa fa-question-circle white"></i>&nbsp;&nbsp;About</a></li>
            <li class="dropdown">
@@ -123,16 +123,9 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
+    <script src="assets/data/tdata.js"></script>
     <script src="assets/js/app.js"></script>
-    <script>
-      $.getJSON('assets/data/tdata.json', function(jsonData) {
-        // console.log(jsonData)
-        territories_data = jsonData; 
-      });  
-      setTimeout(function(){
-        // console.log(territories_data)
-      },1000)
-    </script>
+
 
   </body>
 </html>
