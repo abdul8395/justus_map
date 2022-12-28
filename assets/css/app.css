@@ -134,4 +134,32 @@ input[type="radio"], input[type="checkbox"] {
 .leaflet-control-locate {
   display: none !important;
   }
+
+
+
+ /* .leaflet-draw-tooltip{
+display: none !important;
+} */
+
+.leaflet-draw-draw-polygon {
+display: none !important;
+}
+
+.leaflet-draw-section{
+  display: none !important;
+}
+   .leaflet-draw-edit-edit {
+  display: none !important;
+}
+.leaflet-draw-edit-remove {
+  display: none !important;
+}
+.leaflet-control-fullscreen-button {
+  display: none !important;
+}
+
+.draw-control-disabled {
+    filter: contrast(22%) brightness(157%);
+    pointer-events:none;
+}
   

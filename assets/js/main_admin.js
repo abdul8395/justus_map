@@ -118,171 +118,6 @@ var lc = L.control
 
 
 
-  var drawnItems = new L.FeatureGroup();
-  map.addLayer(drawnItems);
-
-  var drawControl = new L.Control.Draw({
-    draw: {
-      position: 'bottomleft',
-      polygon: {
-        title: 'Draw a polygon!',
-        allowIntersection: false,
-        drawError: {
-          color: '#b00b00',
-          timeout: 1000
-        },
-        shapeOptions: {
-          color: 'red'
-        },
-        showArea: true
-      },
-      // polyline: {
-      //   metric: false
-      // },
-      // circle: {
-      //   shapeOptions: {
-      //     color: '#662d91'
-      //   }
-      // }
-      polyline:false,
-      rectangle: false,
-      circle: true,
-      circlemarker: false,
-      marker: false
-
-    },
-    edit: {
-      featureGroup: drawnItems
-    }
-  });
-  map.addControl(drawControl);
-
-  map.on('draw:created', function (e) {
-    var type = e.layerType,
-      layer = e.layer;
-      currentlayer = layer;
-    if (type === 'marker') {
-      radiusCircle = layer;
-      layer.bindPopup('A popup!');
-    }
-
-    if (type === 'polygon') {
-      polygon = layer;
-  }
-
-    drawnItems.addLayer(layer);
-
-
-
-
-    // var layer = e.layer,
-    // feature = layer.feature = layer.feature || {}; // Intialize layer.feature
-    // feature.type = feature.type || "Feature"; // Intialize feature.type
-    // var props = feature.properties = feature.properties || {}; // Intialize feature.properties
-    // props.title = "my title";
-    // props.content = "my content";
-    // var idIW = L.popup();
-    // var content = '<b>Territory ID:</b><br/><input id="id" placeholder="Enter ID" type="text"/><br><b>Name:</b><br/><input id="Name" placeholder="Enter Name" type="text"/><br><b>Email:</b><br/><input id="Email" placeholder="Enter Email" type="text"/><br/><br/><input type="button" id="okBtn" value="Save" onclick="saveIdIW()"/>';
-    // idIW.setContent(content);
-    // idIW.setLatLng(e.layer.getBounds().getCenter());
-    // idIW.openOn(map);
-    // drawnItems.addLayer(layer);
-  });
-
-
-  function ftn_findPopulation() {
-  
-        document.getElementById("div_output").innerHTML = "Please Wait...";
-        // ftn_findpoppoly(polygon);
-        ftn_findpop_circle(currentlayer.getLatLng().lat, currentlayer.getLatLng().lng, currentlayer.getRadius());
-  }
-  function ftn_findpop_circle(lat, lng, radius) {
-    lat = lat.toFixed(6);
-    lng = lng.toFixed(6);
-    radius = radius / 1000;
-    $.ajax({
-        url: 'https://www.freemaptools.com/ajax/ww-data/find-population-inside-radius/',
-        type: "GET",
-        crossDomain: true,
-        data: {
-            lat: lat,
-            lng: lng,
-            radius: radius,
-            key: 'JGgS6LSbJresHRfgA8',
-            user: 'fmt-2983'
-        },
-        success: function(result) {
-            if (result) {
-                displayResults(result.population, radius);
-            } else {
-                document.getElementById("div_output").innerHTML = "Error. No Results.";
-            }
-        },
-        error: function(x, y, z) {
-            console.log(y);
-        }
-    });
-}
-
-function displayResults(result, radius) {
-  result = numberWithCommas(result);
-  if ((result == 0) && (radius < 1)) {
-      document.getElementById("div_output").innerHTML = "The estimated population in the radius is " + result + ". Perhaps you need a larger radius.";
-  } else {
-      var words = capitalizeFirstLetter(numberToEnglish(result));
-      document.getElementById("div_output").innerHTML = "The estimated population in the radius is " + result + "<br />" + words;
-  }
-}
-
-  function round_decimals(original_number, decimals) {
-    var result1 = original_number * Math.pow(10, decimals);
-    var result2 = Math.round(result1);
-    var result3 = result2 / Math.pow(10, decimals);
-    return pad_with_zeros(result3, decimals);
-  }
-
-
-function ftn_findpoppoly(polygon) {
-  var coordinates = '';
-  var points = polygon.getLatLngs();
-  var thisArrPoints = points[0];
-  if (thisArrPoints.length > 0) {
-      for (i in thisArrPoints) {
-          coordinates += round_decimals(thisArrPoints[i].lng, 5) + "," + round_decimals(thisArrPoints[i].lat, 5) + ",0 ";
-      }
-      coordinates += round_decimals(thisArrPoints[0].lng, 5) + "," + round_decimals(thisArrPoints[0].lat, 5) + ",0";
-  }
-  $.ajax({
-      url: 'https://www.freemaptools.com/ajax/ww-data/find-population-inside-polygon/',
-      // url: 'ajax/ww-data/find-population-inside-polygon/',
-      type: "GET",
-      crossDomain: true,
-      data: {
-          coordinates: coordinates,
-          key: 'JGgS6LSbJresHRfgA8',
-          user: 'fmt-2983'
-      },
-      success: function(result) {
-          if (result) {
-              displayResultsPoly(result.population);
-          } else {
-              document.getElementById("div_output").innerHTML = "Error. No Results.";
-          }
-      },
-      error: function(x, y, z) {
-          console.log(y);
-      }
-  });
-}
-
-
-function displayResultsPoly(result) {
-  result = numberWithCommas(result);
-  var words = capitalizeFirstLetter(numberToEnglish(result));
-  document.getElementById("div_output").innerHTML = "The estimated population in the area is " + result + "<br />" + words;
-}
-
-
 
 
 
@@ -607,30 +442,11 @@ function layerclick(e) {
       })
 
     }else{
-      if(f_id>143){
-        var content='' 
-        content=content+"<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + layer.feature.properties.name + "<br/>"+"<strong> Email: </strong>" + layer.feature.properties.email + "<br/>"
-        // layer.bindPopup( "<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>").openPopup()
-        idIW.setContent(content);
-      }else{
-        Papa.parse(urlGoogleSheetsTerritoriesData, {
-          download: true,
-          header: true,
-          skipEmptyLines: true,
-          complete: function (results) {
-            mapTerritoryData = results.data;
-              let filteredCsvData = mapTerritoryData.filter(function (e) {
-                if(e.terr_id==f_id){
-                    // console.log(currZoom)
-                    var content='' 
-                    content=content+"<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>"
-                    // layer.bindPopup( "<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>").openPopup()
-                    idIW.setContent(content);
-                }
-              });
-          },
-        });
-      }
+      var content='' 
+      content=content+"<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + layer.feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + layer.feature.properties.rep_email + "<br/>"
+      // layer.bindPopup( "<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>").openPopup()
+      idIW.setContent(content);
+      
     
     }
     
@@ -647,21 +463,13 @@ function layerclick(e) {
 function generateList() {
   const statesdiv = document.querySelector('#states_list');
   var str=''
-  Papa.parse(urlGoogleSheetsTerritoriesData, {
-    download: true,
-    header: true,
-    skipEmptyLines: true,
-    complete: function (results) {
-      mapTerritoryData = results.data;
-      for(var i=0; i<mapTerritoryData.length; i++ ){
-        str=str+'<div class="territory-item">';
-         str=str+'<a href="#" onclick="flyTotritory('+mapTerritoryData[i].terr_id+')" id="trr_'+mapTerritoryData[i].terr_id+'">'+mapTerritoryData[i].terr_id+":  "+mapTerritoryData[i].rep_name+'</a>';
-         str=str+'<br><p style="text-align: center;  font-size: 11px;">'+mapTerritoryData[i].rep_email+'</p>';
-         str=str+'</div>'
-      }
-      $("#states_list").html(str)
-    },
-  });
+  for(var i=0; i<territories_data.features.length; i++ ){
+    str=str+'<div class="territory-item">';
+     str=str+'<a href="#" onclick="flyTotritory('+territories_data.features[i].properties.terr_id+')" id="trr_'+territories_data.features[i].properties.terr_id+'">'+territories_data.features[i].properties.terr_id+":  "+territories_data.features[i].properties.rep_name+'</a>';
+     str=str+'<br><p style="text-align: center;  font-size: 11px;">'+territories_data.features[i].properties.rep_email+'</p>';
+     str=str+'</div>'
+  }
+  $("#states_list").html(str)
   
 }
 
@@ -669,25 +477,250 @@ setTimeout(function(){
   generateList();
 },500)
 
+var tlyr_arr_fly_index
 function flyTotritory(tritory_id) {
+
   console.log(tritory_id)
   for(var i=0; i<tlyr_arr.length; i++ ){
+  
     if(tlyr_arr[i].feature.properties.id==tritory_id){
+      tlyr_arr_fly_index=i
       var latlng= tlyr_arr[i].getBounds().getCenter()
       map.flyTo(latlng, 12, {
           duration: 3
       });
       // map.fitBounds(territories_lyr.pm._layers[i].getBounds(), {padding: [50, 50]});
       setTimeout(() => {
+        var content='' 
+        content=content+"<h4> Territory: " + tlyr_arr[tlyr_arr_fly_index].feature.properties.id + "</h4>"+"<strong> Name: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_email + "<br/>"
+       
         L.popup({closeButton: true, offset: L.point(0, -8)})
         .setLatLng(latlng)
-        .setContent("<h4> Territory: " + tritory_id )
+        .setContent(content)
         // .setContent(makePopupContent(tritory))
         .openOn(map);
       }, 2000);
     }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+var drawnItems = new L.FeatureGroup();
+map.addLayer(drawnItems);
+
+var drawControl = new L.Control.Draw({
+  draw: {
+    position: 'bottomleft',
+    polygon: {
+      title: 'Draw a polygon!',
+      allowIntersection: false,
+      drawError: {
+        color: '#b00b00',
+        timeout: 1000
+      },
+      shapeOptions: {
+        color: 'red'
+      },
+      showArea: true
+    },
+    // polyline: {
+    //   metric: false
+    // },
+    // circle: {
+    //   shapeOptions: {
+    //     color: '#662d91'
+    //   }
+    // }
+    polyline:false,
+    rectangle: false,
+    circle: {
+      title: 'click on mouse Draw a Circle on map and relase mouse to get results!',
+      shapeOptions: {
+        color: 'red'
+      },
+      metric:['km'],
+      showArea: true,
+      // kilometers:true,
+      // metres: false,
+      // feet: false,
+      // yards: false,
+      // miles: false,
+      // acres: false,
+
+    },
+    circlemarker: false,
+    marker: false
+
+  },
+  edit: {
+    featureGroup: drawnItems
+  }
+});
+
+map.on('draw:created', function (e) {
+  $("#div_output").empty();
+  document.getElementById("div_output").innerHTML = "Please Wait...";
+  var type = e.layerType,
+    layer = e.layer;
+    console.log(layer)
+
+    layer._latlng.lat
+    layer._latlng.lng
+    layer._mRadius
+
+    var radius_inkm= (layer._mRadius/1000).toFixed(2);
+    // var radius_inkm = radius.toFixed(2)
+    var miles = (radius_inkm / 1.609).toFixed(2);
+
+
+    $.ajax({
+      url: "https://ringpopulationsapi.azurewebsites.net/api/globalringpopulations?latitude="+layer._latlng.lat+"&longitude="+layer._latlng.lng+"&distance_km="+radius_inkm,
+      type: "GET",
+      dataType: "json",
+      // contentType: "application/json; charset=utf-8",
+      success: function(data){
+          console.log(data);
+
+          var content='' 
+        content=content+"<h4><strong> Population: </strong>" + data.people + "</h4>"+"<strong> Bus Stops: </strong>" + data.busStops + "<br/>"+"<strong> Rail Stops: </strong>" + data.railStops + "<br/>"+"<strong>Tram Stops: </strong>" + data.tramStops+ "<br/>"+"<b style='font-size: 12px;'>Radius in KM & Miles: " + radius_inkm+"km, "+miles+"mi</b>"
+        $("#div_output").html(content)
+      },
+      error: function(e){
+          console.log(e.message);
+      }
+    });
+
+
+  if (type === 'marker') {
+    radiusCircle = layer;
+    layer.bindPopup('A popup!');
+  }
+
+  if (type === 'polygon') {
+    polygon = layer;
+}
+
+  drawnItems.addLayer(layer);
+});
+
+map.addControl(drawControl);
+
+
+
+
+$("#popdrawcircle").click(function(){
+  $('.leaflet-popup-pane .leaflet-draw-tooltip').show();
+drawnItems.clearLayers();
+$('.leaflet-draw-draw-circle')[0].click()
+});
+
+
+
+
+
+
+
+function ftn_findPopulation() {
+  
+  document.getElementById("div_output").innerHTML = "Please Wait...";
+  // ftn_findpoppoly(polygon);
+  ftn_findpop_circle(currentlayer.getLatLng().lat, currentlayer.getLatLng().lng, currentlayer.getRadius());
+}
+function ftn_findpop_circle(lat, lng, radius) {
+lat = lat.toFixed(6);
+lng = lng.toFixed(6);
+radius = radius / 1000;
+$.ajax({
+  url: 'https://www.freemaptools.com/ajax/ww-data/find-population-inside-radius/',
+  type: "GET",
+  crossDomain: true,
+  data: {
+      lat: lat,
+      lng: lng,
+      radius: radius,
+      key: 'JGgS6LSbJresHRfgA8',
+      user: 'fmt-2983'
+  },
+  success: function(result) {
+      if (result) {
+          displayResults(result.population, radius);
+      } else {
+          document.getElementById("div_output").innerHTML = "Error. No Results.";
+      }
+  },
+  error: function(x, y, z) {
+      console.log(y);
+  }
+});
+}
+
+function displayResults(result, radius) {
+result = numberWithCommas(result);
+if ((result == 0) && (radius < 1)) {
+document.getElementById("div_output").innerHTML = "The estimated population in the radius is " + result + ". Perhaps you need a larger radius.";
+} else {
+var words = capitalizeFirstLetter(numberToEnglish(result));
+document.getElementById("div_output").innerHTML = "The estimated population in the radius is " + result + "<br />" + words;
+}
+}
+
+function round_decimals(original_number, decimals) {
+var result1 = original_number * Math.pow(10, decimals);
+var result2 = Math.round(result1);
+var result3 = result2 / Math.pow(10, decimals);
+return pad_with_zeros(result3, decimals);
+}
+
+
+function ftn_findpoppoly(polygon) {
+var coordinates = '';
+var points = polygon.getLatLngs();
+var thisArrPoints = points[0];
+if (thisArrPoints.length > 0) {
+for (i in thisArrPoints) {
+    coordinates += round_decimals(thisArrPoints[i].lng, 5) + "," + round_decimals(thisArrPoints[i].lat, 5) + ",0 ";
+}
+coordinates += round_decimals(thisArrPoints[0].lng, 5) + "," + round_decimals(thisArrPoints[0].lat, 5) + ",0";
+}
+$.ajax({
+url: 'https://www.freemaptools.com/ajax/ww-data/find-population-inside-polygon/',
+// url: 'ajax/ww-data/find-population-inside-polygon/',
+type: "GET",
+crossDomain: true,
+data: {
+    coordinates: coordinates,
+    key: 'JGgS6LSbJresHRfgA8',
+    user: 'fmt-2983'
+},
+success: function(result) {
+    if (result) {
+        displayResultsPoly(result.population);
+    } else {
+        document.getElementById("div_output").innerHTML = "Error. No Results.";
+    }
+},
+error: function(x, y, z) {
+    console.log(y);
+}
+});
+}
+
+
+function displayResultsPoly(result) {
+result = numberWithCommas(result);
+var words = capitalizeFirstLetter(numberToEnglish(result));
+document.getElementById("div_output").innerHTML = "The estimated population in the area is " + result + "<br />" + words;
+}
+
 
 
 
