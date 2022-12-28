@@ -3,6 +3,7 @@ var map
 var polygon = null;
 var radiusCircle = null;
 var currentlayer;
+var territories_lyr=new L.LayerGroup()
 var dark  = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
 // var dark  = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png');
 
@@ -65,6 +66,26 @@ var googlestreet   = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z=
 
 
 
+
+    var OWM_API_KEY = 'f6912b4e43460266a19b6d984d6b2610';
+
+    var clouds = L.OWM.clouds({showLegend: false, opacity: 0.5, appId: OWM_API_KEY});
+    var cloudscls = L.OWM.cloudsClassic({opacity: 0.5, appId: OWM_API_KEY});
+    var precipitation = L.OWM.precipitation( {opacity: 0.5, appId: OWM_API_KEY} );
+    var precipitationcls = L.OWM.precipitationClassic({opacity: 0.5, appId: OWM_API_KEY});
+    var rain = L.OWM.rain({opacity: 0.5, appId: OWM_API_KEY});
+    var raincls = L.OWM.rainClassic({opacity: 0.5, appId: OWM_API_KEY});
+    var snow = L.OWM.snow({opacity: 0.5, appId: OWM_API_KEY});
+    var pressure = L.OWM.pressure({opacity: 0.4, appId: OWM_API_KEY});
+    var pressurecntr = L.OWM.pressureContour({opacity: 0.5, appId: OWM_API_KEY});
+    var temp = L.OWM.temperature({opacity: 0.5, appId: OWM_API_KEY});
+    var wind = L.OWM.wind({opacity: 0.5, appId: OWM_API_KEY});
+  
+  var overlayMaps = { "Clouds": clouds,"CloudHistory":cloudscls,"Precipitation":precipitation,"precipitationHistory":precipitationcls,"Rain":rain,"RainHistory":raincls,"Snow":snow,"Pressure":pressure,"Pressure Contours":pressurecntr,"Temprature":temp,"Wind":wind };
+  
+  
+
+
 var baseLayers = {
 "Google Street Map": googlestreet,
 "Google Sattellite Map": googleSat,
@@ -74,13 +95,7 @@ var baseLayers = {
 "plain": plain
 // "LGA Layer": lga
 };
-var overLays = {
-// "Land_Plots": Land_Plots,
-// "Trees & Graphics": trees_layer,
-// "Clouds": clouds_layer
-};
 
-var mylayercontrol= L.control.layers(baseLayers,overLays).addTo(map);
 
 
 
@@ -242,7 +257,7 @@ map.pm.setGlobalOptions({
 })
 
 
-
+var measuredistance=L.control.polylineMeasure({showUnitControl: true,position:'topright'}).addTo(map);
 
 
 
@@ -304,9 +319,9 @@ const urlGoogleSheetsTerritoriesData =
 
 
 var mycount=0
-var territories_lyr
+
 var tlyr_arr=[]
-setTimeout(function(){
+
     territories_lyr=L.geoJson( territories_data, {
     style: function(feature){
       // var fillColor,
@@ -355,7 +370,68 @@ setTimeout(function(){
     }
   })
   map.addLayer(territories_lyr)
-},1000);
+
+
+
+
+    var uscountieslyr=L.geoJson(uscounties, {
+    style: function(feature){
+      // var fillColor,
+
+
+      let color = "#aadaff";
+  
+  
+      return {
+        strokeColor: "#000000",
+        strokeOpacity: 1,
+        strokeWeight: 0.5,
+        fillColor: color,
+        fillOpacity: 0.2,
+        weight: 0.9,
+        opacity: 0.9,
+        dashArray: '2',
+        color: 'red',
+      };
+
+    },
+    onEachFeature: function( feature, layer ){
+     
+      layer.bindPopup( "<b> County Name: </b>" + feature.properties.NAME )
+      // console.log(feature.properties.id)
+ 
+     
+    }
+  })
+  // map.addLayer(uscountieslyr)
+
+
+
+
+
+
+
+
+
+
+
+        var overLays = {
+          "Territories Layer":territories_lyr,
+          "Counties Map Overlay": uscountieslyr,
+          // "Trees & Graphics": trees_layer,
+          // "Clouds": clouds_layer
+          };
+          var mylayercontrol= L.control.layers(baseLayers,overLays).addTo(map);
+
+
+
+
+
+
+
+
+
+
 
 setTimeout(() => {
   territories_lyr.on('pm:edit', function (e) {
@@ -545,7 +621,7 @@ var drawControl = new L.Control.Draw({
     circle: {
       title: 'click on mouse Draw a Circle on map and relase mouse to get results!',
       shapeOptions: {
-        color: 'red'
+        color: 'green'
       },
       metric:['km'],
       showArea: true,
@@ -591,7 +667,7 @@ map.on('draw:created', function (e) {
           console.log(data);
 
           var content='' 
-        content=content+"<h4><strong> Population: </strong>" + data.people + "</h4>"+"<strong> Bus Stops: </strong>" + data.busStops + "<br/>"+"<strong> Rail Stops: </strong>" + data.railStops + "<br/>"+"<strong>Tram Stops: </strong>" + data.tramStops+ "<br/>"+"<b style='font-size: 12px;'>Radius in KM & Miles: " + radius_inkm+"km, "+miles+"mi</b>"
+        content=content+"<h4><strong> Population: </strong>" + data.people + "</h4>"+"<strong> Bus Stops: </strong>" + data.busStops + "<br/>"+"<strong> Rail Stops: </strong>" + data.railStops + "<br/>"+"<strong>Tram Stops: </strong>" + data.tramStops+ "<br/>"+"<b style='font-size: 11px;'>Radius in KM & Miles: " + radius_inkm+"km, "+miles+"mi</b>"
         $("#div_output").html(content)
       },
       error: function(e){
@@ -623,103 +699,6 @@ drawnItems.clearLayers();
 $('.leaflet-draw-draw-circle')[0].click()
 });
 
-
-
-
-
-
-
-function ftn_findPopulation() {
-  
-  document.getElementById("div_output").innerHTML = "Please Wait...";
-  // ftn_findpoppoly(polygon);
-  ftn_findpop_circle(currentlayer.getLatLng().lat, currentlayer.getLatLng().lng, currentlayer.getRadius());
-}
-function ftn_findpop_circle(lat, lng, radius) {
-lat = lat.toFixed(6);
-lng = lng.toFixed(6);
-radius = radius / 1000;
-$.ajax({
-  url: 'https://www.freemaptools.com/ajax/ww-data/find-population-inside-radius/',
-  type: "GET",
-  crossDomain: true,
-  data: {
-      lat: lat,
-      lng: lng,
-      radius: radius,
-      key: 'JGgS6LSbJresHRfgA8',
-      user: 'fmt-2983'
-  },
-  success: function(result) {
-      if (result) {
-          displayResults(result.population, radius);
-      } else {
-          document.getElementById("div_output").innerHTML = "Error. No Results.";
-      }
-  },
-  error: function(x, y, z) {
-      console.log(y);
-  }
-});
-}
-
-function displayResults(result, radius) {
-result = numberWithCommas(result);
-if ((result == 0) && (radius < 1)) {
-document.getElementById("div_output").innerHTML = "The estimated population in the radius is " + result + ". Perhaps you need a larger radius.";
-} else {
-var words = capitalizeFirstLetter(numberToEnglish(result));
-document.getElementById("div_output").innerHTML = "The estimated population in the radius is " + result + "<br />" + words;
-}
-}
-
-function round_decimals(original_number, decimals) {
-var result1 = original_number * Math.pow(10, decimals);
-var result2 = Math.round(result1);
-var result3 = result2 / Math.pow(10, decimals);
-return pad_with_zeros(result3, decimals);
-}
-
-
-function ftn_findpoppoly(polygon) {
-var coordinates = '';
-var points = polygon.getLatLngs();
-var thisArrPoints = points[0];
-if (thisArrPoints.length > 0) {
-for (i in thisArrPoints) {
-    coordinates += round_decimals(thisArrPoints[i].lng, 5) + "," + round_decimals(thisArrPoints[i].lat, 5) + ",0 ";
-}
-coordinates += round_decimals(thisArrPoints[0].lng, 5) + "," + round_decimals(thisArrPoints[0].lat, 5) + ",0";
-}
-$.ajax({
-url: 'https://www.freemaptools.com/ajax/ww-data/find-population-inside-polygon/',
-// url: 'ajax/ww-data/find-population-inside-polygon/',
-type: "GET",
-crossDomain: true,
-data: {
-    coordinates: coordinates,
-    key: 'JGgS6LSbJresHRfgA8',
-    user: 'fmt-2983'
-},
-success: function(result) {
-    if (result) {
-        displayResultsPoly(result.population);
-    } else {
-        document.getElementById("div_output").innerHTML = "Error. No Results.";
-    }
-},
-error: function(x, y, z) {
-    console.log(y);
-}
-});
-}
-
-
-function displayResultsPoly(result) {
-result = numberWithCommas(result);
-var words = capitalizeFirstLetter(numberToEnglish(result));
-document.getElementById("div_output").innerHTML = "The estimated population in the area is " + result + "<br />" + words;
-}
 
 
 

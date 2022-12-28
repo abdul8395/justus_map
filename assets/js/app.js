@@ -200,7 +200,7 @@ setTimeout(function(){
         strokeOpacity: 1,
         strokeWeight: 0.5,
         fillColor: color,
-        fillOpacity: 0.5,
+        fillOpacity: 0.2,
         weight: 0.9,
         opacity: 0.7,
         dashArray: '2',
@@ -221,7 +221,7 @@ setTimeout(function(){
     }
   })
   map.addLayer(territories_lyr)
-},1000);
+},200);
 
 
 
