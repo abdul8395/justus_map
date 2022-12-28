@@ -144,7 +144,7 @@ var lc = L.control
     editPolygon: true,  // adds button to toggle global edit mode
     deleteLayer: false,   // adds a button to delete layers
     drawText: false,   // adds a button to delete layers        
-    cutPolygon: false,   // adds a button to delete layers        
+    cutPolygon: true,   // adds a button to delete layers        
     drawRectangle: false,   // adds a button to delete layers        
     dragMode: false,   // adds a button to delete layers        
     drawCircleMarker: false,   // adds a button to delete layers        
