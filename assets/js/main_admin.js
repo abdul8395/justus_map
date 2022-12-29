@@ -545,15 +545,16 @@ function terri_layerclick(e) {
 }
 
 
-
+var trr_indx=0
 function edit_terr_data(terr_id){
 console.log(terr_id)
 
-var terr_index=territories_data.features.findIndex(x => x.properties.terr_id === terr_id)
-$("#mterr_id").val(territories_data.features[terr_index].properties.terr_id)
-$("#mRecName").val(territories_data.features[terr_index].properties.rep_name)
-$("#mRecEmail").val(territories_data.features[terr_index].properties.rep_email)
-$("#mColor").val(territories_data.features[terr_index].properties.color)
+trr_indx=territories_data.features.findIndex(x => x.properties.terr_id === terr_id)
+
+$("#mterr_id").val(territories_data.features[trr_indx].properties.terr_id)
+$("#mRecName").val(territories_data.features[trr_indx].properties.rep_name)
+$("#mRecEmail").val(territories_data.features[trr_indx].properties.rep_email)
+$("#mColor").val(territories_data.features[trr_indx].properties.color)
 
 $('#terr_edit_Modal').modal('show'); 
 }
@@ -565,13 +566,13 @@ function saveterr_edited_data(){
   var mRecEmail=$("#mRecEmail").val()
   var mColor=$("#mColor").val()
 
-  var terr_idx=territories_data.features.findIndex(x => x.properties.terr_id === terr_id)
-  var props = territories_data.features[terr_idx].properties 
-  props.id = terr_id;
-  props.color = mColor;
+  // var terr_idx=territories_data.features.findIndex(x => x.properties.terr_id === terr_id)
+  var props = territories_data.features[trr_indx].properties 
+  props.id = Number(terr_id);
+  props.color = Number(mColor);
   props.rep_name = mRecName;
   props.rep_email = mRecEmail;
-  props.terr_id = terr_id;
+  props.terr_id = Number(terr_id);
 
 
   setTimeout(function(){
