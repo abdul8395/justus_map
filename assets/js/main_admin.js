@@ -4,6 +4,7 @@ var polygon = null;
 var radiusCircle = null;
 var currentlayer;
 var territories_lyr=new L.LayerGroup()
+var territories_data 
 var dark  = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
 // var dark  = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png');
 
@@ -191,7 +192,7 @@ map.on('pm:create', function(e) {
   // props.title = "my title";
   // props.content = "my content";
   var idIW  = L.popup();
-  var content = '<b>Territory ID:</b><br/><input id="popid" placeholder="Enter ID" type="text"/><br><b>Color:</b><br/><input id="pcolor" placeholder="Enter ColorID" type="text"/><br><b>Name:</b><br/><input id="pName" placeholder="Enter Name" type="text"/><br><b>Email:</b><br/><input id="pEmail" placeholder="Enter Email" type="text"/><br/><br/><input type="button" id="okBtn" value="Save" onclick="saveIdIW()"/>';
+  var content = '<form><b>Territory ID:</b><br/><input id="popid" placeholder="Enter ID" type="text"/><br><b>Color:</b><br/><input id="pcolor" placeholder="Enter ColorID" type="text"/><br><b>Name:</b><br/><input id="pName" placeholder="Enter Name" type="text"/><br><b>Email:</b><br/><input id="pEmail" placeholder="Enter Email" type="text"/><br/><br/><input type="button" class="btn btn-success" style="margin-left:25%" id="okBtn" value="Save" onclick="saveIdIW()"/></form>';
   idIW.setContent(content);
   idIW.setLatLng(e.layer.getBounds().getCenter());
   idIW.openOn(map);
@@ -364,7 +365,7 @@ function maketerritories(){
     },
     onEachFeature: function( feature, layer ){
       layer.on({
-        click: layerclick
+        click: terri_layerclick
       })
       tlyr_arr.push(layer)
       // console.log(feature.properties.id)
@@ -379,7 +380,7 @@ function maketerritories(){
 setTimeout(function(){
   maketerritories()
   map.addLayer(territories_lyr)
-},800)
+},1200)
 
 
 
@@ -431,7 +432,7 @@ setTimeout(function(){
       // "Clouds": clouds_layer
       };
       var mylayercontrol= L.control.layers(baseLayers,overLays).addTo(map);
-  },1000)
+  },1500)
 
        
 
@@ -496,10 +497,10 @@ setTimeout(() => {
 
     
   });
-}, 1400);
+}, 1700);
 
 
-function layerclick(e) {
+function terri_layerclick(e) {
   console.log(mycount+1)
   var layer = e.target;
   // var poly_id=layer.defaultOptions.id
@@ -531,11 +532,10 @@ function layerclick(e) {
 
     }else{
       var content='' 
-      content=content+"<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + layer.feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + layer.feature.properties.rep_email + "<br/>"
+      content=content + "<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + layer.feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + layer.feature.properties.rep_email + "<br/><br/><input type='button' class='btn btn-success' style='margin-left:25%' id='editbtn' value='Edit Data' onclick='edit_terr_data("+f_id+")'/>"
+      // "<br/><input type='button' class='btn btn-success' id='okBtn1' value='Edit Button' onclick='saveIdIW()'/>"
       // layer.bindPopup( "<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>").openPopup()
       idIW.setContent(content);
-      
-    
     }
     
 
@@ -544,6 +544,64 @@ function layerclick(e) {
     idIW.openOn(map);
 }
 
+
+
+function edit_terr_data(terr_id){
+console.log(terr_id)
+
+var terr_index=territories_data.features.findIndex(x => x.properties.terr_id === terr_id)
+$("#mterr_id").val(territories_data.features[terr_index].properties.terr_id)
+$("#mRecName").val(territories_data.features[terr_index].properties.rep_name)
+$("#mRecEmail").val(territories_data.features[terr_index].properties.rep_email)
+$("#mColor").val(territories_data.features[terr_index].properties.color)
+
+$('#terr_edit_Modal').modal('show'); 
+}
+
+
+function saveterr_edited_data(){
+  var terr_id=$("#mterr_id").val()
+  var mRecName=$("#mRecName").val()
+  var mRecEmail=$("#mRecEmail").val()
+  var mColor=$("#mColor").val()
+
+  var terr_idx=territories_data.features.findIndex(x => x.properties.terr_id === terr_id)
+  var props = territories_data.features[terr_idx].properties 
+  props.id = terr_id;
+  props.color = mColor;
+  props.rep_name = mRecName;
+  props.rep_email = mRecEmail;
+  props.terr_id = terr_id;
+
+
+  setTimeout(function(){
+    var dataString = JSON.stringify(territories_data);
+    $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: "services/update_json_data.php",
+            data: {myData:dataString},
+            // contentType: "application/json; charset=utf-8",
+            success: function(data){
+                // alert('Items added');
+            },
+            error: function(e){
+                console.log(e.message);
+            }
+    });
+    map.closePopup();
+    map.removeLayer(territories_lyr)
+    territories_lyr=new L.LayerGroup()
+    maketerritories()
+    map.addLayer(territories_lyr)
+    $("#states_list").empty()
+    generateList();
+    alert("New Polygon Edited Successfully")
+    $('#terr_edit_Modal').modal('hide'); 
+},200)
+
+
+}
 
 
 
@@ -558,7 +616,6 @@ function generateList() {
      str=str+'</div>'
   }
   $("#states_list").html(str)
-  
 }
 
 setTimeout(function(){
@@ -580,7 +637,7 @@ function flyTotritory(tritory_id) {
       // map.fitBounds(territories_lyr.pm._layers[i].getBounds(), {padding: [50, 50]});
       setTimeout(() => {
         var content='' 
-        content=content+"<h4> Territory: " + tlyr_arr[tlyr_arr_fly_index].feature.properties.id + "</h4>"+"<strong> Name: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_email + "<br/>"
+        content=content+"<h4> Territory: " + tlyr_arr[tlyr_arr_fly_index].feature.properties.id + "</h4>"+"<strong> Name: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_email + "<br/><br/><input type='button' class='btn btn-success' style='margin-left:25%' id='editbtn' value='Edit Data' onclick='edit_terr_data("+tritory_id+")'/>"
        
         L.popup({closeButton: true, offset: L.point(0, -8)})
         .setLatLng(latlng)
