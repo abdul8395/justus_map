@@ -5,6 +5,7 @@ var radiusCircle = null;
 var currentlayer;
 var territories_lyr=new L.LayerGroup()
 var territories_data 
+var mylayercontrol 
 var dark  = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
 // var dark  = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png');
 
@@ -28,7 +29,8 @@ var openstreet   = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.p
   map = L.map('map', {
   center: [38.57389610087847,-77.81616160646082],
   zoom: 9,
-  attributionControl: false
+  attributionControl: false,
+  // fullscreenControl: true,
 });
 map.zoomControl.setPosition('bottomright');
 var googlestreet   = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
@@ -63,6 +65,7 @@ var googlestreet   = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z=
       // forcePseudoFullscreen: true, // force use of pseudo full screen even if full screen API is available, default false
       // fullscreenElement: false // Dom element to render in full screen, false by default, fallback to map._container
     }).addTo(map);
+    
 
 
 
@@ -247,6 +250,14 @@ function saveIdIW(){
     $("#states_list").empty()
     generateList();
     alert("New Polygon Added Successfully")
+    map.removeControl(mylayercontrol);
+    setTimeout(function(){
+      var overLays = {
+        "Territories Layer":territories_lyr,
+        "Counties Map Overlay": uscountieslyr,
+        };
+        mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
+    },500)
 },200)
 
 
@@ -431,8 +442,8 @@ setTimeout(function(){
       // "Trees & Graphics": trees_layer,
       // "Clouds": clouds_layer
       };
-      var mylayercontrol= L.control.layers(baseLayers,overLays).addTo(map);
-  },1500)
+       mylayercontrol= L.control.layers(baseLayers,overLays).addTo(map);
+  },2000)
 
        
 
@@ -599,6 +610,14 @@ function saveterr_edited_data(){
     generateList();
     alert("New Polygon Edited Successfully")
     $('#terr_edit_Modal').modal('hide'); 
+    map.removeControl(mylayercontrol);
+    setTimeout(function(){
+      var overLays = {
+        "Territories Layer":territories_lyr,
+        "Counties Map Overlay": uscountieslyr,
+        };
+        mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
+    },500)
 },200)
 
 

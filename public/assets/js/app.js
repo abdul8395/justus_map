@@ -213,7 +213,7 @@ setTimeout(function(){
       var currZoom = map.getZoom();
       if(currZoom <= 16){
         // console.log(currZoom)
-        layer.bindPopup( "<h4> Territory: " + feature.properties.id )
+        layer.bindPopup( "<h4> Territory: " + feature.properties.id + "</h4>"+"<strong> RepName: </strong>" + feature.properties.rep_name)
         // layer.bindPopup( "<h4> Territory: " + feature.properties.id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>")
       }
       tlyr_arr.push(layer)
@@ -239,7 +239,7 @@ function generateList() {
   var str=''
   for(var i=0; i<territories_data.features.length; i++ ){
     str=str+'<div class="territory-item">';
-     str=str+'<a href="#" onclick="flyTotritory('+territories_data.features[i].properties.terr_id+')" id="terr_'+territories_data.features[i].properties.terr_id+'">'+territories_data.features[i].properties.terr_id+":  "+'Territory'+'</a>';
+     str=str+'<a href="#" onclick="flyTotritory('+territories_data.features[i].properties.terr_id+')" id="terr_'+territories_data.features[i].properties.terr_id+'">'+territories_data.features[i].properties.terr_id+":  "+territories_data.features[i].properties.rep_name+'</a>';
      str=str+'</div>'
   }
   $("#states_list").html(str)
@@ -249,7 +249,7 @@ function generateList() {
 
 setTimeout(function(){
   generateList();
-},500)
+},1000)
 
 function flyTotritory(tritory_id) {
   console.log(tritory_id)
