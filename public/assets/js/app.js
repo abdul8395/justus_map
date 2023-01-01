@@ -79,15 +79,80 @@ var overLays = {
 // "Clouds": clouds_layer
 };
 
-var mylayercontrol= L.control.layers(baseLayers,overLays).addTo(map);
+// var mylayercontrol= L.control.layers(baseLayers,overLays).addTo(map);
+
+
+var uscountieslyr=L.geoJson(uscounties, {
+  style: function(feature){
+    // var fillColor,
+
+
+    let color = "#aadaff";
+
+
+    return {
+      strokeColor: "#000000",
+      strokeOpacity: 1,
+      strokeWeight: 0.5,
+      fillColor: color,
+      fillOpacity: 0.2,
+      weight: 0.9,
+      opacity: 0.9,
+      dashArray: '2',
+      color: 'red',
+    };
+
+  },
+  onEachFeature: function( feature, layer ){
+   
+    layer.bindPopup( "<b> County Name: </b>" + feature.properties.NAME )
+    // console.log(feature.properties.id)
+
+   
+  }
+})
+// map.addLayer(uscountieslyr)
+
+
+
+
+
+
+
+
+
+setTimeout(function(){
+  
+  var overLays = {
+    "Territories Layer":territories_lyr,
+    "Counties Map Overlay": uscountieslyr,
+    // "Trees & Graphics": trees_layer,
+    // "Clouds": clouds_layer
+    };
+     mylayercontrol= L.control.layers(baseLayers,overLays).addTo(map);
+},2000)
 
 
 
 
 L.DomEvent.on(document.getElementById('btnGetLoc'), 'click', function(){
   // map.locate({setView: true, maxZoom: 16});
-  $('.leaflet-control-locate-location-arrow')[0].click()
+  // $('.leaflet-control-locate-location-arrow')[0].click()
+      map.locate({setView: true, maxZoom: 15});
+      map.on('locationfound', onLocationFound);
+      function onLocationFound(e) {
+          console.log(e); 
+          // e.heading will contain the user's heading (in degrees) if it's available, and if not it will be NaN. This would allow you to point a marker in the same direction the user is pointed. 
+          var lmarker=L.marker(e.latlng).addTo(map);
+          lmarker._icon.classList.add("huechange");
+      }
 })
+
+
+
+
+
+
 
 
 // function onLocationFound(e) {
@@ -221,7 +286,7 @@ setTimeout(function(){
     }
   })
   map.addLayer(territories_lyr)
-},1000);
+},1400);
 
 
 
@@ -249,7 +314,7 @@ function generateList() {
 
 setTimeout(function(){
   generateList();
-},1000)
+},1400)
 
 function flyTotritory(tritory_id) {
   console.log(tritory_id)

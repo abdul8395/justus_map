@@ -162,4 +162,9 @@ display: none !important;
     filter: contrast(22%) brightness(157%);
     pointer-events:none;
 }
+
+
+img.huechange { filter: hue-rotate(155deg); }
+
+
   

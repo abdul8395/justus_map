@@ -104,7 +104,15 @@ var baseLayers = {
 
 L.DomEvent.on(document.getElementById('btnGetLoc'), 'click', function(){
   // map.locate({setView: true, maxZoom: 16});
-  $('.leaflet-control-locate-location-arrow')[0].click()
+  // $('.leaflet-control-locate-location-arrow')[0].click()
+  map.locate({setView: true, maxZoom: 15});
+  map.on('locationfound', onLocationFound);
+  function onLocationFound(e) {
+      console.log(e); 
+      // e.heading will contain the user's heading (in degrees) if it's available, and if not it will be NaN. This would allow you to point a marker in the same direction the user is pointed. 
+      var lmarker=L.marker(e.latlng).addTo(map);
+      lmarker._icon.classList.add("huechange");
+  }
 })
 
 
