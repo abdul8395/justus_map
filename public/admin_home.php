@@ -4,7 +4,7 @@ $loc = 'http://' . $_SERVER['HTTP_HOST'];
 if (isset($_SESSION['VA_ADMIN'])) {
 
 } else {
-    header("Location:" . $loc . "/admin.php");
+    header("Location:" . $loc . "/justus_map/public/admin.php");
 }
 ?>
 
@@ -59,9 +59,9 @@ if (isset($_SESSION['VA_ADMIN'])) {
         </div>
         <div class="navbar-collapse collapse">
           <form class="navbar-form navbar-right" role="search">
-            <div style="margin-top: 1%;  display: inline-block;"> <a href="/index.html"> <button   type="button" class="btn btn-success">Public Page</button></a>
+            <div style="margin-top: 1%;  display: inline-block;"> <a href="index.html"> <button   type="button" class="btn btn-success">Public Page</button></a>
             </div>
-            <div style="margin-top: 1%;  display: inline-block;"> <a href="/services/logout.php"> <button   type="button" class="btn btn-warning">Logout</button></a>
+            <div style="margin-top: 1%;  display: inline-block;"> <a href="services/logout.php"> <button   type="button" class="btn btn-warning">Logout</button></a>
             </div>
            
             <div class="form-group has-feedback">

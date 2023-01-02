@@ -6,7 +6,7 @@
 session_start();
 $loc='http://' . $_SERVER['HTTP_HOST'];
 if(isset($_SESSION['VA_ADMIN'])){
-    header("Location:".$loc. "/admin_home.php");
+    header("Location:".$loc. "/justus_map/public/admin_home.php");
 }
 ?>
 <html>
