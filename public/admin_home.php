@@ -1,3 +1,13 @@
+<?php
+session_start();
+$loc = 'http://' . $_SERVER['HTTP_HOST'];
+if (isset($_SESSION['VA_ADMIN'])) {
+
+} else {
+    header("Location:" . $loc . "/admin.php");
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -49,6 +59,11 @@
         </div>
         <div class="navbar-collapse collapse">
           <form class="navbar-form navbar-right" role="search">
+            <div style="margin-top: 1%;  display: inline-block;"> <a href="/index.html"> <button   type="button" class="btn btn-success">Public Page</button></a>
+            </div>
+            <div style="margin-top: 1%;  display: inline-block;"> <a href="/services/logout.php"> <button   type="button" class="btn btn-warning">Logout</button></a>
+            </div>
+           
             <div class="form-group has-feedback">
 
                 <!-- <span id="searchicon" class="fa fa-search form-control-feedback"></span> -->
@@ -61,7 +76,9 @@
             -->
             <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;TOC</a></li>
             <li class="hidden-xs" style="margin-left: 480px;"><a class="navbar-brand" href="#">Admin,    VA_Territory_Map  </a></li>
+           
 
+            
             <!-- <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="about-btn"><i class="fa fa-question-circle white"></i>&nbsp;&nbsp;About</a></li>
            <li class="dropdown">
              <a id="toolsDrop" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-globe white"></i>&nbsp;&nbsp;Draw Tool <b class="caret"></b></a>
@@ -203,7 +220,8 @@ src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js">
 <link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen@latest/Control.FullScreen.css" />
 <script src="https://unpkg.com/leaflet.fullscreen@latest/Control.FullScreen.js"></script>
 
-
+	<!-- <script src="betterwms.js"></script> -->
+  <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
 
 
 
