@@ -1,12 +1,3 @@
-<?php
-session_start();
-$loc = 'http://' . $_SERVER['HTTP_HOST'];
-if (isset($_SESSION['VA_ADMIN'])) {
-
-} else {
-    header("Location:" . $loc . "/justus_map/public/admin.php");
-}
-?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -59,9 +50,9 @@ if (isset($_SESSION['VA_ADMIN'])) {
         </div>
         <div class="navbar-collapse collapse">
           <form class="navbar-form navbar-right" role="search">
-            <div style="margin-top: 1%;  display: inline-block;"> <a href="index.html"> <button   type="button" class="btn btn-success">Public Page</button></a>
+            <div style="margin-top: 1%;  display: inline-block;">  <button type="button" class="btn btn-success" onclick="goto_url()">Public Page</button>
             </div>
-            <div style="margin-top: 1%;  display: inline-block;"> <a href="services/logout.php"> <button   type="button" class="btn btn-warning">Logout</button></a>
+            <div style="margin-top: 1%;  display: inline-block;">  <button type="button" class="btn btn-warning" onclick="goto_url()">Logout</button>
             </div>
            
             <div class="form-group has-feedback">
@@ -236,6 +227,11 @@ src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js">
       setTimeout(function(){
         console.log(territories_data)
       },1000)
+
+
+      function goto_url(){
+        window.location = "index.html"; // Redirecting to other page.
+      }
     </script>
 
    
