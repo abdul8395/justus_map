@@ -106,7 +106,7 @@ var uscountieslyr=L.geoJson(uscounties, {
   onEachFeature: function( feature, layer ){
    
     layer.bindPopup( "<b> County Name: </b>" + feature.properties.NAME )
-    // console.log(feature.properties.id)
+    // console.log(feature.properties.terr_id)
 
    
   }
@@ -274,12 +274,12 @@ setTimeout(function(){
 
     },
     onEachFeature: function( feature, layer ){
-      // console.log(feature.properties.id)
+      // console.log(feature.properties.terr_id)
       var currZoom = map.getZoom();
       if(currZoom <= 16){
         // console.log(currZoom)
-        layer.bindPopup( "<h4> Territory: " + feature.properties.id + "</h4>"+"<strong> RepName: </strong>" + feature.properties.rep_name)
-        // layer.bindPopup( "<h4> Territory: " + feature.properties.id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>")
+        layer.bindPopup( "<h4> Territory: " + feature.properties.terr_id + "</h4>"+"<strong> RepName: </strong>" + feature.properties.rep_name)
+        // layer.bindPopup( "<h4> Territory: " + feature.properties.terr_id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>")
       }
       tlyr_arr.push(layer)
      
@@ -319,7 +319,7 @@ setTimeout(function(){
 function flyTotritory(tritory_id) {
   console.log(tritory_id)
   for(var i=0; i<tlyr_arr.length; i++ ){
-    if(tlyr_arr[i].feature.properties.id==tritory_id){
+    if(tlyr_arr[i].feature.properties.terr_id==tritory_id){
       var latlng= tlyr_arr[i].getBounds().getCenter()
       map.flyTo(latlng, 12, {
           duration: 3

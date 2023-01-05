@@ -6,6 +6,12 @@ var currentlayer;
 var territories_lyr=new L.LayerGroup()
 var territories_data 
 var mylayercontrol 
+
+var drawnPolygons = L.featureGroup();
+var drawnLines = L.featureGroup();
+
+
+
 var dark  = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
 // var dark  = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png');
 
@@ -32,6 +38,27 @@ var openstreet   = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.p
   attributionControl: false,
   // fullscreenControl: true,
 });
+
+
+  drawnPolygons.addTo(map);
+  drawnLines.addTo(map);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 map.zoomControl.setPosition('bottomright');
 var googlestreet   = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
     maxZoom: 20,
@@ -146,6 +173,13 @@ var lc = L.control
 
 
 
+
+
+
+
+
+
+
   
   var options = {
     position: 'topright', // toolbar position, options are 'topleft', 'topright', 'bottomleft', 'bottomright'
@@ -153,10 +187,10 @@ var lc = L.control
     drawPolygon: true,  // adds button to draw a polygon
     drawPolyline: false,  // adds button to draw a polyline
     drawCircle: false,  // adds button to draw a cricle
-    editPolygon: true,  // adds button to toggle global edit mode
+    editPolygon: false,  // adds button to toggle global edit mode
     deleteLayer: false,   // adds a button to delete layers
     drawText: false,   // adds a button to delete layers        
-    cutPolygon: true,   // adds a button to delete layers        
+    cutPolygon: false,   // adds a button to delete layers        
     drawRectangle: false,   // adds a button to delete layers        
     dragMode: false,   // adds a button to delete layers        
     drawCircleMarker: false,   // adds a button to delete layers        
@@ -387,7 +421,7 @@ function maketerritories(){
         click: terri_layerclick
       })
       tlyr_arr.push(layer)
-      // console.log(feature.properties.id)
+      // console.log(feature.properties.terr_id)
      
 
       // drawnItems.addLayer(layer);
@@ -427,7 +461,7 @@ setTimeout(function(){
     onEachFeature: function( feature, layer ){
      
       layer.bindPopup( "<b> County Name: </b>" + feature.properties.NAME )
-      // console.log(feature.properties.id)
+      // console.log(feature.properties.terr_id)
  
      
     }
@@ -479,9 +513,9 @@ setTimeout(() => {
     // //Find index of specific object using findIndex method.    
 
     
-    // // objIndex = territories_data.features.findIndex((obj => Number(obj.properties.id)+1 == Number(e.layer.feature.properties.id)));
+    // // objIndex = territories_data.features.findIndex((obj => Number(obj.properties.terr_id)+1 == Number(e.layer.feature.properties.terr_id)));
     // for (const obj of territories_data.features) {
-    //   if (obj.properties.id === e.layer.feature.properties.id) {
+    //   if (obj.properties.terr_id === e.layer.feature.properties.terr_id) {
     //     obj.geometry = e.layer.feature.geometry;
     //     break;
     //   }
@@ -523,7 +557,7 @@ function terri_layerclick(e) {
   console.log(mycount+1)
   var layer = e.target;
   // var poly_id=layer.defaultOptions.id
-  var f_id=layer.feature.properties.id
+  var f_id=layer.feature.properties.terr_id
   // var name=layer.feature.properties.name
 
 
@@ -550,8 +584,10 @@ function terri_layerclick(e) {
       })
 
     }else{
+      var param = "'"+layer.feature.properties.GEO_ID+"'";
+   
       var content='' 
-      content=content + "<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + layer.feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + layer.feature.properties.rep_email + "<br/><br/><input type='button' class='btn btn-success' style='margin-left:25%' id='editbtn' value='Edit Data' onclick='edit_terr_data("+f_id+")'/>"
+      content=content + "<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + layer.feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + layer.feature.properties.rep_email + "<br/><br/><input type='button' class='btn btn-success' style='margin-left:1%; display: inline;' id='editbtn' value='Edit Data' onclick='edit_terr_data("+f_id+")'/>&nbsp&nbsp<input type='button' class='btn btn-warning' style='display: inline;' id='editpolygonbtn' value='Edit Polygon' onclick=\"edit_terr_polygon("+param+")\" />"
       // "<br/><input type='button' class='btn btn-success' id='okBtn1' value='Edit Button' onclick='saveIdIW()'/>"
       // layer.bindPopup( "<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>").openPopup()
       idIW.setContent(content);
@@ -656,7 +692,7 @@ function flyTotritory(tritory_id) {
   console.log(tritory_id)
   for(var i=0; i<tlyr_arr.length; i++ ){
   
-    if(tlyr_arr[i].feature.properties.id==tritory_id){
+    if(tlyr_arr[i].feature.properties.terr_id==tritory_id){
       tlyr_arr_fly_index=i
       var latlng= tlyr_arr[i].getBounds().getCenter()
       map.flyTo(latlng, 12, {
@@ -665,7 +701,7 @@ function flyTotritory(tritory_id) {
       // map.fitBounds(territories_lyr.pm._layers[i].getBounds(), {padding: [50, 50]});
       setTimeout(() => {
         var content='' 
-        content=content+"<h4> Territory: " + tlyr_arr[tlyr_arr_fly_index].feature.properties.id + "</h4>"+"<strong> Name: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_email + "<br/><br/><input type='button' class='btn btn-success' style='margin-left:25%' id='editbtn' value='Edit Data' onclick='edit_terr_data("+tritory_id+")'/>"
+        content=content+"<h4> Territory: " + tlyr_arr[tlyr_arr_fly_index].feature.properties.terr_id + "</h4>"+"<strong> Name: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_email + "<br/><br/><input type='button' class='btn btn-success' style='margin-left:25%' id='editbtn' value='Edit Data' onclick='edit_terr_data("+tritory_id+")'/>"
        
         L.popup({closeButton: true, offset: L.point(0, -8)})
         .setLatLng(latlng)
@@ -683,109 +719,129 @@ function flyTotritory(tritory_id) {
 
 
 
+// var drawnItems = new L.FeatureGroup();
+// map.addLayer(drawnItems);
+
+// var drawControl = new L.Control.Draw({
+//   draw: {
+//     position: 'topright',
+//     polygon: false,
+//     // {
+//     //   title: 'Draw a polygon!',
+//     //   allowIntersection: false,
+//     //   drawError: {
+//     //     color: '#b00b00',
+//     //     timeout: 1000
+//     //   },
+//     //   shapeOptions: {
+//     //     color: 'red'
+//     //   },
+//     //   showArea: true
+//     // },
+//     // polyline: {
+//     //   metric: false
+//     // },
+//     // circle: {
+//     //   shapeOptions: {
+//     //     color: '#662d91'
+//     //   }
+//     // }
+//     polyline:true,
+//     rectangle: false,
+//     circle: {
+//       title: 'click on mouse Draw a Circle on map and relase mouse to get results!',
+//       shapeOptions: {
+//         color: 'green'
+//       },
+//       metric:['km'],
+//       showArea: true,
+//       // kilometers:true,
+//       // metres: false,
+//       // feet: false,
+//       // yards: false,
+//       // miles: false,
+//       // acres: false,
+
+//     },
+//     circlemarker: false,
+//     marker: false
+
+//   },
+//   edit: {
+//     featureGroup: drawnItems
+//   }
+// });
+
+// map.on('draw:created', function (e) {
+//   $("#div_output").empty();
+//   document.getElementById("div_output").innerHTML = "Please Wait...";
+//   var type = e.layerType,
+//     layer = e.layer;
+//     console.log(layer)
+
+//     layer._latlng.lat
+//     layer._latlng.lng
+//     layer._mRadius
+
+//     var radius_inkm= (layer._mRadius/1000).toFixed(2);
+//     // var radius_inkm = radius.toFixed(2)
+//     var miles = (radius_inkm / 1.609).toFixed(2);
+
+
+//     $.ajax({
+//       url: "https://ringpopulationsapi.azurewebsites.net/api/globalringpopulations?latitude="+layer._latlng.lat+"&longitude="+layer._latlng.lng+"&distance_km="+radius_inkm,
+//       type: "GET",
+//       dataType: "json",
+//       // contentType: "application/json; charset=utf-8",
+//       success: function(data){
+//           console.log(data);
+
+//           var content='' 
+//         content=content+"<h4><strong> Population: </strong>" + data.people + "</h4>"+"<strong> Bus Stops: </strong>" + data.busStops + "<br/>"+"<strong> Rail Stops: </strong>" + data.railStops + "<br/>"+"<strong>Tram Stops: </strong>" + data.tramStops+ "<br/>"+"<b style='font-size: 11px;'>Radius in KM & Miles: " + radius_inkm+"km, "+miles+"mi</b>"
+//         $("#div_output").html(content)
+//       },
+//       error: function(e){
+//           console.log(e.message);
+//       }
+//     });
+
+
+//   if (type === 'marker') {
+//     radiusCircle = layer;
+//     layer.bindPopup('A popup!');
+//   }
+
+//   if (type === 'polygon') {
+//     polygon = layer;
+// }
+
+//   drawnItems.addLayer(layer);
+// });
+
+// map.addControl(drawControl);
 
 
 
 
-var drawnItems = new L.FeatureGroup();
-map.addLayer(drawnItems);
 
-var drawControl = new L.Control.Draw({
+
+
+map.addControl(new L.Control.Draw({
   draw: {
-    position: 'bottomleft',
-    polygon: {
-      title: 'Draw a polygon!',
-      allowIntersection: false,
-      drawError: {
-        color: '#b00b00',
-        timeout: 1000
-      },
-      shapeOptions: {
-        color: 'red'
-      },
-      showArea: true
-    },
-    // polyline: {
-    //   metric: false
-    // },
-    // circle: {
-    //   shapeOptions: {
-    //     color: '#662d91'
-    //   }
-    // }
-    polyline:false,
-    rectangle: false,
-    circle: {
-      title: 'click on mouse Draw a Circle on map and relase mouse to get results!',
-      shapeOptions: {
-        color: 'green'
-      },
-      metric:['km'],
-      showArea: true,
-      // kilometers:true,
-      // metres: false,
-      // feet: false,
-      // yards: false,
-      // miles: false,
-      // acres: false,
-
-    },
+    marker: false,
+    circle: true,
     circlemarker: false,
-    marker: false
-
-  },
-  edit: {
-    featureGroup: drawnItems
+    rectangle: false,
+    polyline:true,
+    circlemarker: false,
+    marker: false,
+    polygon: false
+    // {
+    //   allowIntersection: true,
+    //   showArea: true
+    // }
   }
-});
-
-map.on('draw:created', function (e) {
-  $("#div_output").empty();
-  document.getElementById("div_output").innerHTML = "Please Wait...";
-  var type = e.layerType,
-    layer = e.layer;
-    console.log(layer)
-
-    layer._latlng.lat
-    layer._latlng.lng
-    layer._mRadius
-
-    var radius_inkm= (layer._mRadius/1000).toFixed(2);
-    // var radius_inkm = radius.toFixed(2)
-    var miles = (radius_inkm / 1.609).toFixed(2);
-
-
-    $.ajax({
-      url: "https://ringpopulationsapi.azurewebsites.net/api/globalringpopulations?latitude="+layer._latlng.lat+"&longitude="+layer._latlng.lng+"&distance_km="+radius_inkm,
-      type: "GET",
-      dataType: "json",
-      // contentType: "application/json; charset=utf-8",
-      success: function(data){
-          console.log(data);
-
-          var content='' 
-        content=content+"<h4><strong> Population: </strong>" + data.people + "</h4>"+"<strong> Bus Stops: </strong>" + data.busStops + "<br/>"+"<strong> Rail Stops: </strong>" + data.railStops + "<br/>"+"<strong>Tram Stops: </strong>" + data.tramStops+ "<br/>"+"<b style='font-size: 11px;'>Radius in KM & Miles: " + radius_inkm+"km, "+miles+"mi</b>"
-        $("#div_output").html(content)
-      },
-      error: function(e){
-          console.log(e.message);
-      }
-    });
-
-
-  if (type === 'marker') {
-    radiusCircle = layer;
-    layer.bindPopup('A popup!');
-  }
-
-  if (type === 'polygon') {
-    polygon = layer;
-}
-
-  drawnItems.addLayer(layer);
-});
-
-map.addControl(drawControl);
+}));
 
 
 
@@ -795,6 +851,240 @@ $("#popdrawcircle").click(function(){
 drawnItems.clearLayers();
 $('.leaflet-draw-draw-circle')[0].click()
 });
+
+
+
+
+
+
+
+
+
+
+
+
+function edit_terr_polygon(GEO_ID){
+  // var GEO_ID="'"+GEO_ID_in+"'";
+
+
+   var drawnGeoJSON = L.geoJSON(territories_data, {
+      filter: function (feature) {
+          return feature.properties.GEO_ID === GEO_ID;
+      }
+  });
+  console.log(drawnGeoJSON);
+  drawnGeoJSON = drawnGeoJSON.toGeoJSON();
+  console.log(drawnGeoJSON);
+  var drawnGeometry = turf.getGeom(drawnGeoJSON);
+  polygons = [];
+  unkinked = turf.unkinkPolygon(drawnGeometry);
+  turf.geomEach(unkinked, function (geometry) 
+  {
+    polygons.push(geometry);
+  });
+  drawnPolygons.clearLayers();
+  drawnLines.clearLayers();
+}
+
+
+
+const cutIdPrefix = 'cut_';
+var polygons = [];
+
+function cutPolygonStyle(feature) {
+  var id, color;
+  
+  id = feature.properties.id;
+  if (typeof(id) !== 'undefined') {
+    id = id.substring(0, (cutIdPrefix.length + 1))
+  }
+
+  if (id == cutIdPrefix + '1')
+    color = 'green';
+  else if (id == cutIdPrefix + '2')
+    color = 'red';
+  else {
+    color = '#3388ff';
+  }      
+  return {color: color, opacity: 0.5, fillOpacity: 0.1};
+}
+
+
+
+
+
+
+map.on(L.Draw.Event.CREATED, function (event) {
+
+  var drawnLayer, drawnGeoJSON, drawnGeometry, unkinked;
+  var newPolygons = [];
+  debugger;
+  drawnLayer = event.layer;
+  drawnGeoJSON = drawnLayer.toGeoJSON();
+  drawnGeometry = turf.getGeom(drawnGeoJSON);
+
+  if (drawnGeometry.type == 'Circle') 
+  {
+    console.log("circle created")
+
+    $("#div_output").empty();
+    document.getElementById("div_output").innerHTML = "Please Wait...";
+    var type = e.layerType,
+      layer = e.layer;
+      console.log(layer)
+  
+      layer._latlng.lat
+      layer._latlng.lng
+      layer._mRadius
+  
+      var radius_inkm= (layer._mRadius/1000).toFixed(2);
+      // var radius_inkm = radius.toFixed(2)
+      var miles = (radius_inkm / 1.609).toFixed(2);
+  
+  
+      $.ajax({
+        url: "https://ringpopulationsapi.azurewebsites.net/api/globalringpopulations?latitude="+layer._latlng.lat+"&longitude="+layer._latlng.lng+"&distance_km="+radius_inkm,
+        type: "GET",
+        dataType: "json",
+        // contentType: "application/json; charset=utf-8",
+        success: function(data){
+            console.log(data);
+  
+            var content='' 
+          content=content+"<h4><strong> Population: </strong>" + data.people + "</h4>"+"<strong> Bus Stops: </strong>" + data.busStops + "<br/>"+"<strong> Rail Stops: </strong>" + data.railStops + "<br/>"+"<strong>Tram Stops: </strong>" + data.tramStops+ "<br/>"+"<b style='font-size: 11px;'>Radius in KM & Miles: " + radius_inkm+"km, "+miles+"mi</b>"
+          $("#div_output").html(content)
+        },
+        error: function(e){
+            console.log(e.message);
+        }
+      });
+  }
+
+  
+  if (drawnGeometry.type == 'Polygon') 
+  {
+    console.log("Polygon created")
+    polygons = [];
+    unkinked = turf.unkinkPolygon(drawnGeometry);
+    turf.geomEach(unkinked, function (geometry) 
+    {
+      polygons.push(geometry);
+    });
+    drawnPolygons.clearLayers();
+    drawnLines.clearLayers();
+    drawnPolygons.addLayer(drawnLayer);
+  }
+  if (drawnGeometry.type == 'LineString') 
+  {
+    console.log("Line created")
+    drawnLines.addLayer(drawnLayer);
+    drawnPolygons.clearLayers();
+    polygons.forEach(function (polygon, index) {
+      var cutPolygon = polygonCut(polygon, drawnGeometry, cutIdPrefix);
+      if (cutPolygon != null) {
+        L.geoJSON(cutPolygon, {
+          style: cutPolygonStyle
+        }).addTo(drawnPolygons);   
+        turf.geomEach(cutPolygon, function (geometry) {
+          newPolygons.push(geometry);
+        });
+        }
+      else {
+        L.geoJSON(polygon).addTo(drawnPolygons);   
+        newPolygons.push(polygon);
+      }
+    });
+    polygons = newPolygons;
+    console.log(polygons);
+    drawnLines.clearLayers();
+    
+  }
+  console.log(polygons);
+});
+
+
+function polygonCut(polygon, line, idPrefix) {
+  const THICK_LINE_UNITS = 'kilometers';
+  const THICK_LINE_WIDTH = 0.001;
+  var i, j, id, intersectPoints, lineCoords, forCut, forSelect;
+  var thickLineString, thickLinePolygon, clipped, polyg, intersect;
+  var polyCoords = [];
+  var cutPolyGeoms = [];
+  var cutFeatures = [];
+  var offsetLine = [];
+  var retVal = null;
+  
+  if (((polygon.type != 'Polygon') && (polygon.type != 'MultiPolygon')) || (line.type != 'LineString')) {
+    return retVal;
+  }
+  
+  if (typeof(idPrefix) === 'undefined') {
+    idPrefix = '';
+  }
+  
+  intersectPoints = turf.lineIntersect(polygon, line);
+  if (intersectPoints.features.length == 0) {
+    return retVal;
+  }
+    
+  var lineCoords = turf.getCoords(line);
+  if ((turf.booleanWithin(turf.point(lineCoords[0]), polygon) ||
+      (turf.booleanWithin(turf.point(lineCoords[lineCoords.length - 1]), polygon)))) {
+    return retVal;
+  }
+
+  offsetLine[0] = turf.lineOffset(line, THICK_LINE_WIDTH, {units: THICK_LINE_UNITS});
+  offsetLine[1] = turf.lineOffset(line, -THICK_LINE_WIDTH, {units: THICK_LINE_UNITS});
+
+  for (i = 0; i <= 1; i++) {
+    forCut = i; 
+    forSelect = (i + 1) % 2; 
+    polyCoords = [];
+    for (j = 0; j < line.coordinates.length; j++) {
+      polyCoords.push(line.coordinates[j]);
+    }
+     for (j = (offsetLine[forCut].geometry.coordinates.length - 1); j >= 0; j--) {
+      polyCoords.push(offsetLine[forCut].geometry.coordinates[j]);
+    }
+    polyCoords.push(line.coordinates[0]);
+    
+    thickLineString = turf.lineString(polyCoords);
+    thickLinePolygon = turf.lineToPolygon(thickLineString);
+    clipped = turf.difference(polygon, thickLinePolygon);
+   
+    cutPolyGeoms = [];
+    for (j = 0; j < clipped.geometry.coordinates.length; j++) {
+      polyg = turf.polygon(clipped.geometry.coordinates[j]);
+      intersect = turf.lineIntersect(polyg, offsetLine[forSelect]);
+      if (intersect.features.length > 0) {
+        cutPolyGeoms.push(polyg.geometry.coordinates);
+      }
+    }
+    
+    cutPolyGeoms.forEach(function (geometry, index) {
+      id = idPrefix + (i + 1) + '.' +  (index + 1);
+      cutFeatures.push(turf.polygon(geometry, {id: id}));
+    });
+  }
+  
+  if (cutFeatures.length > 0) retVal = turf.featureCollection(cutFeatures);
+  
+  return retVal;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
