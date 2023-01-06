@@ -6,7 +6,7 @@ var currentlayer;
 var territories_lyr=new L.LayerGroup()
 var territories_data 
 var mylayercontrol 
-
+var new_created_lyr
 var drawnPolygons = L.featureGroup();
 var drawnLines = L.featureGroup();
 
@@ -180,141 +180,15 @@ var lc = L.control
 
 
 
-  
-  var options = {
-    position: 'topright', // toolbar position, options are 'topleft', 'topright', 'bottomleft', 'bottomright'
-    drawMarker: false,  // adds button to draw markers
-    drawPolygon: true,  // adds button to draw a polygon
-    drawPolyline: false,  // adds button to draw a polyline
-    drawCircle: false,  // adds button to draw a cricle
-    editPolygon: false,  // adds button to toggle global edit mode
-    deleteLayer: false,   // adds a button to delete layers
-    drawText: false,   // adds a button to delete layers        
-    cutPolygon: false,   // adds a button to delete layers        
-    drawRectangle: false,   // adds a button to delete layers        
-    dragMode: false,   // adds a button to delete layers        
-    drawCircleMarker: false,   // adds a button to delete layers        
-    rotateMode: false,   // adds a button to delete layers        
-      
-   
-};
-
-// add leaflet.pm controls to the map
-
-map.pm.addControls(options);
-
-
-// get array of all available shapes
-map.pm.Draw.getShapes()
-
-
-
-// disable drawing mode
-map.pm.disableDraw('Polygon');
-
-// listen to when drawing mode gets enabled
-map.on('pm:drawstart', function(e) {
-  // console.log(e)
-});
-
-// listen to when drawing mode gets disabled
-map.on('pm:drawend', function(e) {
-  // console.log(e)
-});
-
-
-// listen to when a new layer is created
-var new_created_lyr
-map.on('pm:create', function(e) {
- var layer = e.layer
-  new_created_lyr=''
-  new_created_lyr=layer.toGeoJSON()
-  // console.log(e)
-  
-  // feature = layer.feature = layer.feature || {}; // Intialize layer.feature
-  // feature.type = feature.type || "Feature"; // Intialize feature.type
-  // var props = feature.properties = feature.properties || {}; // Intialize feature.properties
-  // props.title = "my title";
-  // props.content = "my content";
-  var idIW  = L.popup();
-  var content = '<form><b>Territory ID:</b><br/><input id="popid" placeholder="Enter ID" type="text"/><br><b>Color:</b><br/><input id="pcolor" placeholder="Enter ColorID" type="text"/><br><b>Name:</b><br/><input id="pName" placeholder="Enter Name" type="text"/><br><b>Email:</b><br/><input id="pEmail" placeholder="Enter Email" type="text"/><br/><br/><input type="button" class="btn btn-success" style="margin-left:25%" id="okBtn" value="Save" onclick="saveIdIW()"/></form>';
-  idIW.setContent(content);
-  idIW.setLatLng(e.layer.getBounds().getCenter());
-  idIW.openOn(map);
-  // drawnItems.addLayer(layer);
-
-  // listen to changes on the new layer
-  e.layer.on('pm:edit', function(x) {
-  // console.log('edit', x)
-  });
-});
-
-
-function saveIdIW(){
-  var popid=$("#popid").val();
-  var pcolor=$("#pcolor").val();
-  var pname=$("#pName").val();
-  var pEmail=$("#pEmail").val();
-  
-  // console.log(popid+","+pname+","+pEmail)
-  // console.log(new_created_lyr)
-  var props = new_created_lyr.properties = new_created_lyr.properties || {}; // Intialize feature.properties
-  props.id = popid;
-  props.color = pcolor;
-  props.rep_name = pname;
-  props.rep_email = pEmail;
-  props.terr_id = popid;
-  // console.log(new_created_lyr)
-
- territories_data.features.push(new_created_lyr);
-
-  setTimeout(function(){
-    var dataString = JSON.stringify(territories_data);
-    $.ajax({
-            type: "POST",
-            dataType: "json",
-            url: "services/update_json_data.php",
-            data: {myData:dataString},
-            // contentType: "application/json; charset=utf-8",
-            success: function(data){
-                // alert('Items added');
-            },
-            error: function(e){
-                console.log(e.message);
-            }
-    });
-    map.closePopup();
-    map.removeLayer(territories_lyr)
-    territories_lyr=new L.LayerGroup()
-    drawnItems.clearLayers();
-    maketerritories()
-    map.addLayer(territories_lyr)
-    $("#states_list").empty()
-    generateList();
-    alert("New Polygon Added Successfully")
-    map.removeControl(mylayercontrol);
-    setTimeout(function(){
-      var overLays = {
-        "Territories Layer":territories_lyr,
-        "Counties Map Overlay": uscountieslyr,
-        };
-        mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
-    },500)
-},200)
-
-
-
-
-}
 
 
 
 
 
 
-map.pm.setGlobalOptions({
-  limitMarkersToCount: 20
-})
+
+
+
 
 
 var measuredistance=L.control.polylineMeasure({showUnitControl: true,position:'topright'}).addTo(map);
@@ -499,14 +373,14 @@ setTimeout(function(){
 
 
 
-setTimeout(() => {
-  territories_lyr.on('pm:edit', function (e) {
-    console.log("lyr edited");
-    console.log(e);
-  });
-  territories_lyr.on('pm:update', function (e) {
-    console.log("lyr upated");
-    console.log(e);
+// setTimeout(() => {
+//   territories_lyr.on('pm:edit', function (e) {
+//     console.log("lyr edited");
+//     console.log(e);
+//   });
+//   territories_lyr.on('pm:update', function (e) {
+//     console.log("lyr upated");
+//     console.log(e);
     // console.log(e.layer.feature);
     // console.log(JSON.stringify(e.layer.feature));
 
@@ -549,8 +423,8 @@ setTimeout(() => {
     // },200)
 
     
-  });
-}, 1700);
+//   });
+// }, 1700);
 
 
 function terri_layerclick(e) {
@@ -825,8 +699,10 @@ function flyTotritory(tritory_id) {
 
 
 
+var drawnItems = new L.FeatureGroup();
 
-map.addControl(new L.Control.Draw({
+
+var drawControl =new L.Control.Draw({
   draw: {
     marker: false,
     circle: true,
@@ -835,22 +711,20 @@ map.addControl(new L.Control.Draw({
     polyline:true,
     circlemarker: false,
     marker: false,
-    polygon: false
+    polygon: true
     // {
     //   allowIntersection: true,
     //   showArea: true
     // }
   }
-}));
-
-
-
-
-$("#popdrawcircle").click(function(){
-  $('.leaflet-popup-pane .leaflet-draw-tooltip').show();
-drawnItems.clearLayers();
-$('.leaflet-draw-draw-circle')[0].click()
 });
+
+
+map.addLayer(drawnItems);
+map.addControl(drawControl);
+
+
+
 
 
 
@@ -864,6 +738,14 @@ $('.leaflet-draw-draw-circle')[0].click()
 
 
 function edit_terr_polygon(GEO_ID){
+
+
+  map.closePopup();
+  $('.leaflet-popup-pane .leaflet-draw-tooltip').show();
+  drawnItems.clearLayers();
+  $('.leaflet-draw-draw-polyline')[0].click()
+
+
   // var GEO_ID="'"+GEO_ID_in+"'";
 
 
@@ -963,16 +845,34 @@ map.on(L.Draw.Event.CREATED, function (event) {
   
   if (drawnGeometry.type == 'Polygon') 
   {
-    console.log("Polygon created")
-    polygons = [];
-    unkinked = turf.unkinkPolygon(drawnGeometry);
-    turf.geomEach(unkinked, function (geometry) 
-    {
-      polygons.push(geometry);
-    });
-    drawnPolygons.clearLayers();
-    drawnLines.clearLayers();
-    drawnPolygons.addLayer(drawnLayer);
+   
+    var layer = drawnLayer
+     new_created_lyr=''
+     new_created_lyr=layer.toGeoJSON()
+     // console.log(e)
+     
+     // feature = layer.feature = layer.feature || {}; // Intialize layer.feature
+     // feature.type = feature.type || "Feature"; // Intialize feature.type
+     // var props = feature.properties = feature.properties || {}; // Intialize feature.properties
+     // props.title = "my title";
+     // props.content = "my content";
+     var idIW  = L.popup();
+     var content = '<form><b>Territory ID:</b><br/><input id="popid" placeholder="Enter ID" type="text"/><br><b>Color:</b><br/><input id="pcolor" placeholder="Enter ColorID" type="text"/><br><b>Name:</b><br/><input id="pName" placeholder="Enter Name" type="text"/><br><b>Email:</b><br/><input id="pEmail" placeholder="Enter Email" type="text"/><br/><br/><input type="button" class="btn btn-success" style="margin-left:25%" id="okBtn" value="Save" onclick="saveIdIW()"/></form>';
+     idIW.setContent(content);
+     idIW.setLatLng(layer.getBounds().getCenter());
+     idIW.openOn(map);
+     drawnItems.addLayer(layer);
+
+    // console.log("Polygon created")
+    // polygons = [];
+    // unkinked = turf.unkinkPolygon(drawnGeometry);
+    // turf.geomEach(unkinked, function (geometry) 
+    // {
+    //   polygons.push(geometry);
+    // });
+    // drawnPolygons.clearLayers();
+    // drawnLines.clearLayers();
+    // drawnPolygons.addLayer(drawnLayer);
   }
   if (drawnGeometry.type == 'LineString') 
   {
@@ -983,7 +883,13 @@ map.on(L.Draw.Event.CREATED, function (event) {
       var cutPolygon = polygonCut(polygon, drawnGeometry, cutIdPrefix);
       if (cutPolygon != null) {
         L.geoJSON(cutPolygon, {
-          style: cutPolygonStyle
+          style: cutPolygonStyle,
+          onEachFeature: function( feature, layer ){
+            layer.on({
+              click: splited_layerclick
+            })
+            // tlyr_arr.push(layer)
+          }
         }).addTo(drawnPolygons);   
         turf.geomEach(cutPolygon, function (geometry) {
           newPolygons.push(geometry);
@@ -995,7 +901,9 @@ map.on(L.Draw.Event.CREATED, function (event) {
       }
     });
     polygons = newPolygons;
-    console.log(polygons);
+    // console.log(polygons);
+    new_created_lyr=''
+    new_created_lyr=polygons
     drawnLines.clearLayers();
     
   }
@@ -1076,7 +984,161 @@ function polygonCut(polygon, line, idPrefix) {
 
 
 
+function saveIdIW(){
+  var popid=$("#popid").val();
+  var pcolor=$("#pcolor").val();
+  var pname=$("#pName").val();
+  var pEmail=$("#pEmail").val();
+  
+  // console.log(popid+","+pname+","+pEmail)
+  // console.log(new_created_lyr)
+  var props = new_created_lyr.properties = new_created_lyr.properties || {}; // Intialize feature.properties
+  props.id = popid;
+  props.color = pcolor;
+  props.rep_name = pname;
+  props.rep_email = pEmail;
+  props.terr_id = popid;
+  // console.log(new_created_lyr)
 
+ territories_data.features.push(new_created_lyr);
+
+  setTimeout(function(){
+    var dataString = JSON.stringify(territories_data);
+    $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: "services/update_json_data.php",
+            data: {myData:dataString},
+            // contentType: "application/json; charset=utf-8",
+            success: function(data){
+                // alert('Items added');
+            },
+            error: function(e){
+                console.log(e.message);
+            }
+    });
+    map.closePopup();
+    map.removeLayer(territories_lyr)
+    territories_lyr=new L.LayerGroup()
+    drawnItems.clearLayers();
+    maketerritories()
+    map.addLayer(territories_lyr)
+    $("#states_list").empty()
+    generateList();
+    alert("New Polygon Added Successfully")
+    map.removeControl(mylayercontrol);
+    setTimeout(function(){
+      var overLays = {
+        "Territories Layer":territories_lyr,
+        "Counties Map Overlay": uscountieslyr,
+        };
+        mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
+    },500)
+  },200)
+}
+
+
+function splited_layerclick(e){
+console.log(e)
+var layer = e.target;
+// var lyrid= JSON.parse(layer.feature.properties.id)
+var lyrid
+var lid= layer.feature.properties.id.replace(/^["'](.+(?=["']$))["']$/, '$1');
+if(lid="cut_1.1"){
+  lyrid=1
+}else{
+  lyrid=2
+}
+
+  var idIW  = L.popup();
+  var content = '<form><b>Territory ID:</b><br/><input id="popid" placeholder="Enter ID" type="text"/><br><b>Color:</b><br/><input id="pcolor" placeholder="Enter ColorID" type="text"/><br><b>Name:</b><br/><input id="pName" placeholder="Enter Name" type="text"/><br><b>Email:</b><br/><input id="pEmail" placeholder="Enter Email" type="text"/><br/><br/><input type="button" class="btn btn-success" style="margin-left:25%" id="okBtn" value="Save Splited Territory" onclick="save_splited_IdIW('+lyrid+')"/></form>';
+  idIW.setContent(content);
+  idIW.setLatLng(layer.getBounds().getCenter());
+  idIW.addTo(map)
+}
+
+function save_splited_IdIW(sp_id){
+  console.log(sp_id)
+console.log(new_created_lyr)
+var new_splited_lyr
+if(sp_id==1){
+  new_splited_lyr=new_created_lyr[0]
+}else{
+  new_splited_lyr=new_created_lyr[0]
+}
+
+  var popid=$("#popid").val();
+  var pcolor=$("#pcolor").val();
+  var pname=$("#pName").val();
+  var pEmail=$("#pEmail").val();
+  
+  // console.log(popid+","+pname+","+pEmail)
+  // console.log(new_splited_lyr)
+  var props = new_splited_lyr.properties = new_splited_lyr.properties || {}; // Intialize feature.properties
+  props.id = popid;
+  props.color = pcolor;
+  props.rep_name = pname;
+  props.rep_email = pEmail;
+  props.terr_id = popid;
+  // console.log(new_splited_lyr)
+
+ territories_data.features.push(new_splited_lyr);
+
+  setTimeout(function(){
+    var dataString = JSON.stringify(territories_data);
+    $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: "services/update_json_data.php",
+            data: {myData:dataString},
+            // contentType: "application/json; charset=utf-8",
+            success: function(data){
+                // alert('Items added');
+            },
+            error: function(e){
+                console.log(e.message);
+            }
+    });
+    map.closePopup();
+    // map.removeLayer(territories_lyr)
+    // territories_lyr=new L.LayerGroup()
+    // drawnItems.clearLayers();
+    // maketerritories()
+    // map.addLayer(territories_lyr)
+    // $("#states_list").empty()
+    // generateList();
+    alert("New Polygon Added Successfully")
+    // map.removeControl(mylayercontrol);
+    // setTimeout(function(){
+    //   var overLays = {
+    //     "Territories Layer":territories_lyr,
+    //     "Counties Map Overlay": uscountieslyr,
+    //     };
+    //     mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
+    // },500)
+  },200)
+ 
+}
+
+
+
+
+
+
+
+
+$("#popdrawcircle").click(function(){
+  $('.leaflet-popup-pane .leaflet-draw-tooltip').show();
+drawnItems.clearLayers();
+$('.leaflet-draw-draw-circle')[0].click()
+});
+
+
+$("#add_polygon").click(function(){
+  $('.leaflet-popup-pane .leaflet-draw-tooltip').show();
+  drawnItems.clearLayers();
+  $('.leaflet-draw-draw-polygon')[0].click()
+});
 
 
 

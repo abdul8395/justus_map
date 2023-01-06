@@ -145,6 +145,13 @@ display: none !important;
 display: none !important;
 }
 
+.leaflet-draw-draw-polygon {
+  display: none !important;
+  }
+.leaflet-draw-draw-polyline {
+  display: none !important;
+  }
+
 /* .leaflet-draw-section{
   display: none !important;
 } */
@@ -154,9 +161,9 @@ display: none !important;
 .leaflet-draw-edit-remove {
   display: none !important;
 }
-/* .leaflet-control-fullscreen-button {
+.leaflet-control-fullscreen-button {
   display: none !important;
-} */
+}
 
 /* .draw-control-disabled {
     filter: contrast(22%) brightness(157%);
