@@ -1,3 +1,13 @@
+<?php
+session_start();
+$loc = 'http://' . $_SERVER['HTTP_HOST'];
+if (isset($_SESSION['VA_ADMIN'])) {
+
+} else {
+    header("Location:" . $loc . "/admin.php");
+}
+?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -68,7 +78,7 @@
            <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;TOC</a></li>
             -->
             <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;TOC</a></li>
-            <!-- <li class="hidden-xs" style="margin-left: 480px;"><a class="navbar-brand" href="#">Admin,    VA_Territory_Map  </a></li> -->
+            <li class="hidden-xs" style="margin-left: 480px;"><a class="navbar-brand" href="#">Admin,    VA_Territory_Map  </a></li>
            
 
             
@@ -206,8 +216,8 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
-<link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" /> 
-<script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>  
+<!-- <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" /> 
+<script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>   -->
 
 	<!-- <script src="betterwms.js"></script> -->
   <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
@@ -231,7 +241,7 @@ src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js">
 <script src="https://unpkg.com/leaflet.fullscreen@latest/Control.FullScreen.js"></script>
 
 
-
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9GR0oF71wisbzR6xuV1k6gbmEBQlkmOc&libraries=places"></script>
 
 
     <script src="assets/js/uscounties.js"></script>

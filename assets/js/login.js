@@ -5,7 +5,7 @@ var username = document.getElementById("vausername").value;
 var password = document.getElementById("vapassword").value;
 if ( username == "VA_ADMIN" && password == "VA_ADMIN@justus"){
 alert ("Login successfully");
-window.location = "admin_home.html"; // Redirecting to other page.
+window.location = "admin__Home.html"; // Redirecting to other page.
 return false;
 }
 else{

@@ -1,5 +1,13 @@
 
 
+
+<?php
+session_start();
+$loc='http://' . $_SERVER['HTTP_HOST'];
+if(isset($_SESSION['VA_ADMIN'])){
+    header("Location:".$loc. "/admin__Home.php");
+}
+?>
 <html>
 <head>
 
@@ -13,8 +21,6 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="assets/css/login.css"/>
 
-<script src="assets/js/login.js"></script>
-
 </head>
 <body>
 <div id="wrapper" style="margin-top:10%;">
@@ -27,7 +33,7 @@
   <br>
   <input type="password" name="vapassword" id="vapassword" placeholder="***********">
   <br>
-  <input type="button" name="login" value="LOGIN" id="login_button" onclick="validate()">
+  <input type="button" name="login" value="LOGIN" id="login_button" onclick="do_login()">
  </form>
  <div id="errormessage"></div>
  <p id="loading_spinner"><img src="assets/img/loader1.gif"></p>
@@ -59,7 +65,7 @@
         console.log(JSON.parse(response));
       if(JSON.parse(response)=="success")
       {
-        window.location.href="admin_home.php";
+        window.location.href="admin__Home.php";
       }
       else
       {
