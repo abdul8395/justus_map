@@ -1,12 +1,4 @@
-<?php
-session_start();
-$loc = 'http://' . $_SERVER['HTTP_HOST'];
-if (isset($_SESSION['VA_ADMIN'])) {
 
-} else {
-    header("Location:" . $loc . "/admin.php");
-}
-?>
 
 
 <!DOCTYPE html>
