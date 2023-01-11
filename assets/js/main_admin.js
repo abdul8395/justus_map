@@ -444,7 +444,7 @@ function terri_layerclick(e) {
     }else{
       var param = "'"+layer.feature.properties.GEO_ID+"'";
       var content='' 
-      content=content + "<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + layer.feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + layer.feature.properties.rep_email + "<br/><br/><input type='button' class='btn btn-success' style='margin-left:1%; display: inline;' id='editbtn' value='Edit Data' onclick='edit_terr_data("+f_id+")'/>&nbsp&nbsp<input type='button' class='btn btn-warning' style='display: inline;' id='editpolygonbtn' value='Split Polygon' onclick=\"split_terr_polygon_func("+param+")\" />"
+      content=content + "<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + layer.feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + layer.feature.properties.rep_email + " <br/><br/><input type='button' class='btn btn-success' style='margin-left:1%; display: inline;' id='editbtn' value='Edit Data' onclick='edit_terr_data("+f_id+")'/>&nbsp&nbsp<input type='button' class='btn btn-warning' style='display: inline;' id='editpolygonbtn' value='Split Territory' onclick=\"split_terr_polygon_func("+param+")\" /> <br/><br/><input type='button' class='btn btn-danger' style='margin-left:5%; display: inline;' id='editbtn' value='Remove This Territory' onclick='delete_terr("+f_id+")'/>"
       // "<br/><input type='button' class='btn btn-success' id='okBtn1' value='Edit Button' onclick='saveIdIW()'/>"
       // layer.bindPopup( "<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>").openPopup()
       idIW.setContent(content);
@@ -526,6 +526,48 @@ function saveterr_edited_data(){
 
 
 
+function delete_terr(terrid){
+  var findx=territories_data.features.findIndex(x => x.properties.terr_id === terrid)
+  territories_data.features.splice(findx, 1);
+
+  setTimeout(function(){
+    var dataString = JSON.stringify(territories_data);
+    $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: "services/update_json_data.php",
+            data: {myData:dataString},
+            // contentType: "application/json; charset=utf-8",
+            success: function(data){
+                // alert('Items added');
+            },
+            error: function(e){
+                console.log(e.message);
+            }
+    });
+    
+    map.removeLayer(territories_lyr)
+    territories_lyr=new L.LayerGroup()
+    drawnItems.clearLayers();
+    maketerritories()
+    map.addLayer(territories_lyr)
+    // $("#states_list").empty()
+    // generateList();
+    map.closePopup();
+    alert("Territory Deleted Successfully")
+    // fly_aftr_split(fid)l
+    // map.removeControl(mylayercontrol);
+    setTimeout(function(){
+      var overLays = {
+        "Territories Layer":territories_lyr,
+        "Counties Map Overlay": uscountieslyr,
+        };
+        mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
+    },500)
+  },200)
+
+}
+
 
 function generateList() {
   const statesdiv = document.querySelector('#states_list');
@@ -558,7 +600,8 @@ function flyTotritory(tritory_id) {
     
       setTimeout(() => {
         var content='' 
-        content=content+"<h4> Territory: " + tlyr_arr[tlyr_arr_fly_index].feature.properties.terr_id + "</h4>"+"<strong> Name: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_email + "<br/><br/><input type='button' class='btn btn-success' style='margin-left:25%' id='editbtn' value='Edit Data' onclick='edit_terr_data("+tritory_id+")'/>"
+        // content=content+"<h4> Territory: " + tlyr_arr[tlyr_arr_fly_index].feature.properties.terr_id + "</h4>"+"<strong> Name: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_email + "<br/><br/><input type='button' class='btn btn-success' style='margin-left:25%' id='editbtn' value='Edit Data' onclick='edit_terr_data("+tritory_id+")'/>"
+        content=content+"<h4> Territory: " + tlyr_arr[tlyr_arr_fly_index].feature.properties.terr_id + "</h4>"+"<strong> Name: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_email 
        
         L.popup({closeButton: true, offset: L.point(0, -8)})
         .setLatLng(latlng)
@@ -893,6 +936,7 @@ map.on(L.Draw.Event.CREATED, function (event) {
         // // var arr=territories_data.features
         // // removeById(arr, fid);
         var findx=territories_data.features.findIndex(x => x.properties.terr_id === fid)
+        
        
 
         var splitedpoly1=cutPolygon.features[0]
@@ -950,13 +994,13 @@ map.on(L.Draw.Event.CREATED, function (event) {
           alert("Polygon Splited Successfully")
           fly_aftr_split(fid)
           // map.removeControl(mylayercontrol);
-          // setTimeout(function(){
-          //   var overLays = {
-          //     "Territories Layer":territories_lyr,
-          //     "Counties Map Overlay": uscountieslyr,
-          //     };
-          //     mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
-          // },500)
+          setTimeout(function(){
+            var overLays = {
+              "Territories Layer":territories_lyr,
+              "Counties Map Overlay": uscountieslyr,
+              };
+              mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
+          },500)
         },200)
 
 

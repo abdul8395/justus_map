@@ -1,4 +1,12 @@
+<?php
+session_start();
+$loc = 'http://' . $_SERVER['HTTP_HOST'];
+if (isset($_SESSION['VA_ADMIN'])) {
 
+} else {
+    header("Location:" . $loc . "/admin.php");
+}
+?>
 
 
 <!DOCTYPE html>
@@ -113,7 +121,7 @@
                 
                 <button  class="btn btn-success" id="add_polygon" style="margin-left:1%; margin-top: 2%;">
                   <i class="fa-solid fa-landmark" aria-hidden="true" style="font-size:20px;color:black"></i>
-                  <span style="font-size:18px">Add Territory</span><br/>
+                  <span style="font-size:18px">Add New Territory</span><br/>
                   <i class="fas fa-draw-polygon" aria-hidden="true" style="font-size:20px;color:black"></i>
                   <span style="font-size:10px">Click me & Draw Polygon On Map</span>
                 </button>
