@@ -423,6 +423,7 @@ function terri_layerclick(e) {
   var layer = e.target;
   // var poly_id=layer.defaultOptions.id
   var f_id=Number(layer.feature.properties.GEO_ID)
+ 
   // var name=layer.feature.properties.name
   var idIW = L.popup();
   var currZoom = map.getZoom();
@@ -443,8 +444,9 @@ function terri_layerclick(e) {
 
     }else{
       var param = "'"+layer.feature.properties.GEO_ID+"'";
+      var terr_unique_id = "'"+layer.feature.properties.unique_id+"'";
       var content='' 
-      content=content + "<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + layer.feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + layer.feature.properties.rep_email + " <br/><br/><input type='button' class='btn btn-success' style='margin-left:1%; display: inline;' id='editbtn' value='Edit Data' onclick='edit_terr_data("+f_id+")'/>&nbsp&nbsp<input type='button' class='btn btn-warning' style='display: inline;' id='editpolygonbtn' value='Split Territory' onclick=\"split_terr_polygon_func("+param+")\" /> <br/><br/><input type='button' class='btn btn-danger' style='margin-left:5%; display: inline;' id='editbtn' value='Remove This Territory' onclick='delete_terr("+f_id+")'/>"
+      content=content + "<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + layer.feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + layer.feature.properties.rep_email + "<br/><br/><input type='button' class='btn btn-success' style='margin-left:1%; display: inline;' id='editbtn' value='Edit Data' onclick=\"edit_terr_data("+terr_unique_id+")\"/>&nbsp&nbsp<input type='button' class='btn btn-warning' style='display: inline;' id='editpolygonbtn' value='Split Polygon' onclick=\"split_terr_polygon_func("+terr_unique_id+")\" /><br/><br/><input type='button' class='btn btn-danger' style='margin-left:5%; display: inline;' id='editbtn' value='Remove This Territory' onclick=\"delete_terr("+terr_unique_id+")\"/>"
       // "<br/><input type='button' class='btn btn-success' id='okBtn1' value='Edit Button' onclick='saveIdIW()'/>"
       // layer.bindPopup( "<h4> Territory: " + f_id + "</h4>"+"<strong> Name: </strong>" + e.rep_name + "<br/>"+"<strong> Email: </strong>" + e.rep_email + "<br/>").openPopup()
       idIW.setContent(content);
@@ -458,10 +460,10 @@ function terri_layerclick(e) {
 
 
 var trr_indx=0
-function edit_terr_data(geoid){
-console.log(geoid)
+function edit_terr_data(uniqid){
+console.log(uniqid)
 
-trr_indx=territories_data.features.findIndex(x => Number(x.properties.GEO_ID) === geoid)
+trr_indx=territories_data.features.findIndex(x => x.properties.unique_id === uniqid)
 
 $("#mterr_id").val(territories_data.features[trr_indx].properties.terr_id)
 $("#mRecName").val(territories_data.features[trr_indx].properties.rep_name)
@@ -489,19 +491,19 @@ function saveterr_edited_data(){
 
   setTimeout(function(){
     var dataString = JSON.stringify(territories_data);
-    $.ajax({
-            type: "POST",
-            dataType: "json",
-            url: "services/update_json_data.php",
-            data: {myData:dataString},
-            // contentType: "application/json; charset=utf-8",
-            success: function(data){
-                // alert('Items added');
-            },
-            error: function(e){
-                console.log(e.message);
-            }
-    });
+    // $.ajax({
+    //         type: "POST",
+    //         dataType: "json",
+    //         url: "services/update_json_data.php",
+    //         data: {myData:dataString},
+    //         // contentType: "application/json; charset=utf-8",
+    //         success: function(data){
+    //             // alert('Items added');
+    //         },
+    //         error: function(e){
+    //             console.log(e.message);
+    //         }
+    // });
     map.closePopup();
     map.removeLayer(territories_lyr)
     territories_lyr=new L.LayerGroup()
@@ -518,7 +520,7 @@ function saveterr_edited_data(){
         "Counties Map Overlay": uscountieslyr,
         };
         mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
-    },500)
+    },700)
 },200)
 
 
@@ -526,25 +528,25 @@ function saveterr_edited_data(){
 
 
 
-function delete_terr(terrid){
-  var findx=territories_data.features.findIndex(x => x.properties.terr_id === terrid)
+function delete_terr(uniqid){
+  var findx=territories_data.features.findIndex(x => x.properties.unique_id === uniqid)
   territories_data.features.splice(findx, 1);
 
   setTimeout(function(){
     var dataString = JSON.stringify(territories_data);
-    $.ajax({
-            type: "POST",
-            dataType: "json",
-            url: "services/update_json_data.php",
-            data: {myData:dataString},
-            // contentType: "application/json; charset=utf-8",
-            success: function(data){
-                // alert('Items added');
-            },
-            error: function(e){
-                console.log(e.message);
-            }
-    });
+    // $.ajax({
+    //         type: "POST",
+    //         dataType: "json",
+    //         url: "services/update_json_data.php",
+    //         data: {myData:dataString},
+    //         // contentType: "application/json; charset=utf-8",
+    //         success: function(data){
+    //             // alert('Items added');
+    //         },
+    //         error: function(e){
+    //             console.log(e.message);
+    //         }
+    // });
     
     map.removeLayer(territories_lyr)
     territories_lyr=new L.LayerGroup()
@@ -554,29 +556,32 @@ function delete_terr(terrid){
     // $("#states_list").empty()
     // generateList();
     map.closePopup();
-    alert("Territory Deleted Successfully")
+    alert("Territory Removed Successfully")
     // fly_aftr_split(fid)l
-    // map.removeControl(mylayercontrol);
+    map.removeControl(mylayercontrol);
     setTimeout(function(){
       var overLays = {
         "Territories Layer":territories_lyr,
         "Counties Map Overlay": uscountieslyr,
         };
         mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
-    },500)
-  },200)
+    },900)
+  },500)
 
 }
+
 
 
 function generateList() {
   const statesdiv = document.querySelector('#states_list');
   var str=''
+ 
   for(var i=0; i<territories_data.features.length; i++ ){
-    str=str+'<div class="territory-item">';
-     str=str+'<a href="#" onclick="flyTotritory('+territories_data.features[i].properties.terr_id+')" id="trr_'+territories_data.features[i].properties.terr_id+'">'+territories_data.features[i].properties.terr_id+":  "+territories_data.features[i].properties.rep_name+'</a>';
-     str=str+'<br><p style="text-align: center;  font-size: 11px;">'+territories_data.features[i].properties.rep_email+'</p>';
-     str=str+'</div>'
+    var terr_unique_id = "'"+territories_data.features[i].properties.unique_id+"'";
+    str=str+"<div class='territory-item'>";
+     str=str+"<a href='#' onclick=\"flyTotritory("+terr_unique_id+")\" id='trr_'>"+territories_data.features[i].properties.terr_id+":  "+territories_data.features[i].properties.rep_name+"</a>";
+     str=str+"<br><p style='text-align: center;  font-size: 11px;'>"+territories_data.features[i].properties.rep_email+"</p>";
+     str=str+"</div>"
   }
   $("#states_list").html(str)
 }
@@ -586,22 +591,21 @@ setTimeout(function(){
 },1700)
 
 var tlyr_arr_fly_index
-function flyTotritory(tritory_id) {
-
-  console.log(tritory_id)
+function flyTotritory(u_id) {
+  console.log(u_id)
   for(var i=0; i<tlyr_arr.length; i++ ){
   
-    if(tlyr_arr[i].feature.properties.terr_id==tritory_id){
+    if(tlyr_arr[i].feature.properties.unique_id==u_id){
       tlyr_arr_fly_index=i
       var latlng= tlyr_arr[i].getBounds().getCenter()
-      map.flyTo(latlng, 12, {
+      map.flyTo(latlng, 11, {
           duration: 3
       });
     
       setTimeout(() => {
         var content='' 
-        // content=content+"<h4> Territory: " + tlyr_arr[tlyr_arr_fly_index].feature.properties.terr_id + "</h4>"+"<strong> Name: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_email + "<br/><br/><input type='button' class='btn btn-success' style='margin-left:25%' id='editbtn' value='Edit Data' onclick='edit_terr_data("+tritory_id+")'/>"
         content=content+"<h4> Territory: " + tlyr_arr[tlyr_arr_fly_index].feature.properties.terr_id + "</h4>"+"<strong> Name: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_name + "<br/>"+"<strong> Email: </strong>" + tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_email 
+        // + "<br/><br/><input type='button' class='btn btn-success' style='margin-left:25%' id='editbtn' value='Edit Data' onclick='edit_terr_data("+tritory_id+")'/>"
        
         L.popup({closeButton: true, offset: L.point(0, -8)})
         .setLatLng(latlng)
@@ -763,9 +767,9 @@ map.addControl(drawControl);
 var current_spliting_polygon_id
 
 
-function split_terr_polygon_func(GEO_ID){
+function split_terr_polygon_func(uniq_id){
 
-  current_spliting_polygon_id=GEO_ID
+  current_spliting_polygon_id=uniq_id
   map.closePopup();
   $('.leaflet-popup-pane .leaflet-draw-tooltip').show();
   drawnItems.clearLayers();
@@ -777,7 +781,7 @@ function split_terr_polygon_func(GEO_ID){
 
    var drawnGeoJSON = L.geoJSON(territories_data, {
       filter: function (feature) {
-          return feature.properties.GEO_ID === GEO_ID;
+          return feature.properties.unique_id === uniq_id;
       }
   });
   console.log(drawnGeoJSON);
@@ -935,8 +939,7 @@ map.on(L.Draw.Event.CREATED, function (event) {
         var fid=Number(current_spliting_polygon_id)
         // // var arr=territories_data.features
         // // removeById(arr, fid);
-        var findx=territories_data.features.findIndex(x => x.properties.terr_id === fid)
-        
+        var findx=territories_data.features.findIndex(x => x.properties.unique_id === current_spliting_polygon_id)
        
 
         var splitedpoly1=cutPolygon.features[0]
@@ -946,12 +949,15 @@ map.on(L.Draw.Event.CREATED, function (event) {
 
         territories_data.features.splice(findx, 1);
         var oldgeoid= old_terr_props.terr_id 
+        var oldunique_id= old_terr_props.unique_id 
         var poly1props = splitedpoly1.properties = splitedpoly1.properties || {}; // Intialize feature.properties
         poly1props.GEO_ID   = oldgeoid.toString();
         poly1props.color    = old_terr_props.color
         poly1props.rep_name = old_terr_props.rep_name 
         poly1props.rep_email= old_terr_props.rep_email 
         poly1props.terr_id  = old_terr_props.terr_id
+        poly1props.unique_id = oldunique_id.toString();
+
 
 
         var poly2props = splitedpoly2.properties = splitedpoly2.properties || {}; // Intialize feature.properties
@@ -961,6 +967,7 @@ map.on(L.Draw.Event.CREATED, function (event) {
         poly2props.rep_name = old_terr_props.rep_name 
         poly2props.rep_email= old_terr_props.rep_email 
         poly2props.terr_id  = territories_data.features.length+2
+        poly2props.unique_id = unique_ID_creator().toString();
 
        
         // console.log(new_created_lyr)
@@ -970,19 +977,19 @@ map.on(L.Draw.Event.CREATED, function (event) {
       
         setTimeout(function(){
           var dataString = JSON.stringify(territories_data);
-          $.ajax({
-                  type: "POST",
-                  dataType: "json",
-                  url: "services/update_json_data.php",
-                  data: {myData:dataString},
-                  // contentType: "application/json; charset=utf-8",
-                  success: function(data){
-                      // alert('Items added');
-                  },
-                  error: function(e){
-                      console.log(e.message);
-                  }
-          });
+          // $.ajax({
+          //         type: "POST",
+          //         dataType: "json",
+          //         url: "services/update_json_data.php",
+          //         data: {myData:dataString},
+          //         // contentType: "application/json; charset=utf-8",
+          //         success: function(data){
+          //             // alert('Items added');
+          //         },
+          //         error: function(e){
+          //             console.log(e.message);
+          //         }
+          // });
           // map.closePopup();
           map.removeLayer(territories_lyr)
           territories_lyr=new L.LayerGroup()
@@ -992,15 +999,15 @@ map.on(L.Draw.Event.CREATED, function (event) {
           // $("#states_list").empty()
           // generateList();
           alert("Polygon Splited Successfully")
-          fly_aftr_split(fid)
+          fly_aftr_split(current_spliting_polygon_id)
           // map.removeControl(mylayercontrol);
-          setTimeout(function(){
-            var overLays = {
-              "Territories Layer":territories_lyr,
-              "Counties Map Overlay": uscountieslyr,
-              };
-              mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
-          },500)
+          // setTimeout(function(){
+          //   var overLays = {
+          //     "Territories Layer":territories_lyr,
+          //     "Counties Map Overlay": uscountieslyr,
+          //     };
+          //     mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
+          // },500)
         },200)
 
 
@@ -1036,13 +1043,13 @@ map.on(L.Draw.Event.CREATED, function (event) {
 
 
 
-function fly_aftr_split(tritory_id) {
-  console.log(tritory_id)
+function fly_aftr_split(unid) {
+  console.log(unid)
   for(var i=0; i<tlyr_arr.length; i++ ){
-    if(tlyr_arr[i].feature.properties.terr_id==tritory_id){
+    if(tlyr_arr[i].feature.properties.unique_id==unid){
       tlyr_arr_fly_index=i
       var latlng= tlyr_arr[i].getBounds().getCenter()
-      map.flyTo(latlng, 12, {
+      map.flyTo(latlng, 10, {
           duration: 0
       });
     }
@@ -1137,6 +1144,7 @@ function saveIdIW(){
   props.GEO_ID = popnxtid.toString();
   props.color = Number(pcolor);
   props.rep_name = pname;
+  props.unique_id = unique_ID_creator().toString();
   props.rep_email = pEmail;
   props.terr_id = Number(popid);
   // console.log(new_created_lyr)
@@ -1144,21 +1152,20 @@ function saveIdIW(){
  territories_data.features.push(new_created_lyr);
 
   setTimeout(function(){
-    var dataString = JSON.stringify(territories_data);
-    $.ajax({
-            type: "POST",
-            dataType: "json",
-            url: "services/update_json_data.php",
-            data: {myData:dataString},
-            // contentType: "application/json; charset=utf-8",
-            success: function(data){
-                // alert('Items added');
-            },
-            error: function(e){
-                console.log(e.message);
-            }
-    });
-
+    // var dataString = JSON.stringify(territories_data);
+    // $.ajax({
+    //         type: "POST",
+    //         dataType: "json",
+    //         url: "services/update_json_data.php",
+    //         data: {myData:dataString},
+    //         // contentType: "application/json; charset=utf-8",
+    //         success: function(data){
+    //             // alert('Items added');
+    //         },
+    //         error: function(e){
+    //             console.log(e.message);
+    //         }
+    // });
 
     map.closePopup();
     map.removeLayer(territories_lyr)
@@ -1176,7 +1183,7 @@ function saveIdIW(){
         "Counties Map Overlay": uscountieslyr,
         };
         mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
-    },500)
+    },700)
   },200)
 }
 
@@ -1300,6 +1307,49 @@ $("#add_polygon").click(function(){
 
 
 
+$("#save_all_edited").click(function(){
+ 
+
+      var dataString = JSON.stringify(territories_data);
+      $.ajax({
+              type: "POST",
+              dataType: "json",
+              url: "services/update_json_data.php",
+              data: {myData:dataString},
+              // contentType: "application/json; charset=utf-8",
+              success: function(data){
+                  // alert('Items added');
+              },
+              error: function(e){
+                  console.log(e.message);
+              }
+      });
+      map.closePopup();
+      map.removeLayer(territories_lyr)
+      territories_lyr=new L.LayerGroup()
+      maketerritories()
+      map.addLayer(territories_lyr)
+      $("#states_list").empty()
+      generateList();
+      alert("All Edited Data saved on server Successfully")
+      $('#terr_edit_Modal').modal('hide'); 
+      map.removeControl(mylayercontrol);
+      setTimeout(function(){
+        var overLays = {
+          "Territories Layer":territories_lyr,
+          "Counties Map Overlay": uscountieslyr,
+          };
+          mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
+      },700)
+
+  
+  
+
+  
+});
+
+
+
 
 
 
@@ -1409,3 +1459,12 @@ function sidebarClick(id) {
   }
 }
 
+
+
+const unique_ID_creator = (_length=5) => {
+  // Math.random to base 36 (numbers, letters),
+  // grab the first 9 characters
+  // after the decimal.
+  return 'id' + Math.random().toString(36).substr(2, _length); // max _length should be less then 13
+};
+// console.log("Example ID()::", ID())

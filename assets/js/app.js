@@ -338,33 +338,37 @@ setTimeout(function(){
 function generateList() {
   const statesdiv = document.querySelector('#states_list');
   var str=''
+ 
   for(var i=0; i<territories_data.features.length; i++ ){
-    str=str+'<div class="territory-item">';
-     str=str+'<a href="#" onclick="flyTotritory('+territories_data.features[i].properties.terr_id+')" id="terr_'+territories_data.features[i].properties.terr_id+'">'+territories_data.features[i].properties.terr_id+":  "+territories_data.features[i].properties.rep_name+'</a>';
-     str=str+'</div>'
+    var terr_unique_id = "'"+territories_data.features[i].properties.unique_id+"'";
+    str=str+"<div class='territory-item'>";
+     str=str+"<a href='#' onclick=\"flyTotritory("+terr_unique_id+")\" id='trr_'>"+territories_data.features[i].properties.terr_id+":  "+territories_data.features[i].properties.rep_name+"</a>";
+     str=str+"<br><p style='text-align: center;  font-size: 11px;'>"+territories_data.features[i].properties.rep_email+"</p>";
+     str=str+"</div>"
   }
   $("#states_list").html(str)
-  
-  
 }
 
 setTimeout(function(){
   generateList();
 },1700)
 
-function flyTotritory(tritory_id) {
-  console.log(tritory_id)
+var tlyr_arr_fly_index
+function flyTotritory(u_id) {
+  console.log(u_id)
   for(var i=0; i<tlyr_arr.length; i++ ){
-    if(tlyr_arr[i].feature.properties.terr_id==tritory_id){
+  
+    if(tlyr_arr[i].feature.properties.unique_id==u_id){
+      tlyr_arr_fly_index=i
       var latlng= tlyr_arr[i].getBounds().getCenter()
-      map.flyTo(latlng, 12, {
+      map.flyTo(latlng, 11, {
           duration: 3
       });
      
       setTimeout(() => {
         L.popup({closeButton: true, offset: L.point(0, -8)})
         .setLatLng(latlng)
-        .setContent("<h4> Territory: " + tritory_id )
+        .setContent("<h4> Territory: " + tlyr_arr[tlyr_arr_fly_index].feature.properties.terr_id+"<br><br>RepName: "+ tlyr_arr[tlyr_arr_fly_index].feature.properties.rep_name )
         // .setContent(makePopupContent(tritory))
         .openOn(map);
       }, 2000);

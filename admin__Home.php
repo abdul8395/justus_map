@@ -126,6 +126,14 @@ if (isset($_SESSION['VA_ADMIN'])) {
                   <span style="font-size:10px">Click me & Draw Polygon On Map</span>
                 </button>
                 <br>
+        
+                <button  class="btn btn-danger" id="save_all_edited" style="margin-left:1%; margin-top: 2%;">
+                  <i class="fas fa-save" aria-hidden="true" style="font-size:20px;color:black"></i>
+                  <span style="font-size:13px">Save all changes on Server</span><br/>
+                  <i class="fa-solid fa-database" aria-hidden="true" style="font-size:20px;color:black"></i>
+                  <span style="font-size:10px">save all edited data to server</span>
+                </button>
+                <br>
                 <!-- <button  class="btn btn-warning" id="split_polygon" style="margin-left:0%; margin-top: 2%;">
                   <i class="fas fa-globe-americas" aria-hidden="true" style="font-size:20px;color:black"></i>
                   <span style="font-size:18px">Split Territory </span><br/>
