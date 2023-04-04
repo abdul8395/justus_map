@@ -10,7 +10,7 @@ if(isset($_SESSION['VA_ADMIN'])){
 ?>
 <html>
 <head>
-
+<link rel="icon" type="image/x-icon" href="assets/img/logo_favi.png">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 <!-- jQuery library -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>

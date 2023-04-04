@@ -1,0 +1,294 @@
+<html>
+<head>
+	<!-- https://www.amcharts.com/demos-v4/simple-column-chart-v4/ -->
+	<title>geoserver- Leaflet</title>
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<!-- <link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" /> -->
+
+	<link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.2/dist/leaflet.css" />
+	<script src="https://npmcdn.com/leaflet@1.0.0-rc.2/dist/leaflet.js"></script>
+    <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	<!-- <script src="betterwms.js"></script> -->
+    <!-- <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script> -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js'></script>
+
+    <link 
+    rel="stylesheet" 
+    href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"
+/>
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js">
+</script>
+<script src="USCounty.js"></script>
+<style>
+    	html, body {
+			  height: 100%;
+			  padding: 0;
+			  margin: 0;
+			  background-color: white;
+			}
+			#map {
+			  width: 100%;
+			  height: 100%;
+			}
+      #mergeButton {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px;
+  z-index: 500;
+}
+</style>
+</head>
+<body>
+
+<div id='map'>
+  
+</div>
+
+
+<script>
+  var mergeIndex = 0;
+  var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  var osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+  var osm = L.tileLayer(osmUrl, { maxZoom: 18, attribution: osmAttrib });
+  var drawnPolygons = L.featureGroup();
+  var drawnLines = L.featureGroup();
+
+  var map = new L.Map('map', { center: new L.LatLng(61.869348,-160.469477), zoom: 4 });
+ 
+  osm.addTo(map);
+  drawnPolygons.addTo(map);
+  drawnLines.addTo(map);
+ 
+  map.addControl(new L.Control.Draw({
+    draw: {
+      marker: false,
+      circle: false,
+      circlemarker: false,
+      rectangle: false,
+      polygon: {
+        allowIntersection: true,
+        showArea: true
+      }
+    }
+  }));
+  // var USA = L.geoJSON(geojsonFeature).addTo(map);
+  var USA_layer = L.geoJSON(geojsonFeature, 
+  {
+ onEachFeature: function (f, l) 
+ {
+  var param = "'"+f.properties.GEO_ID+"'";
+  var tit = " Select For Merging";
+  l.bindPopup("<pre><button onclick=\"tempEdit("+param+")\">Edit This</button><br><button><input type=\"checkbox\" onclick=\"mergePolygon("+param+")\" id=\"merge_"+mergeIndex+"\">"+tit+"</button></pre>")
+  //  l.bindPopup('<pre>'+JSON.stringify(f.properties,null,' ').replace(/[\{\}"]/g,'')+'</pre>');
+ }
+}).addTo(map);
+
+function mergePolygon(GEO_ID)
+{
+  mergeIndex = mergeIndex+1;
+  var drawnGeoJSON = L.geoJSON(geojsonFeature, 
+  {
+       filter: function (feature) 
+       {
+          return feature.properties.GEO_ID === GEO_ID;
+      }
+   });
+   drawnGeoJSON = drawnGeoJSON.toGeoJSON();
+   var drawnGeometry = turf.getGeom(drawnGeoJSON);
+   unkinked = turf.unkinkPolygon(drawnGeometry);
+      turf.geomEach(unkinked, function (geometry) 
+      {
+        polygons.push(geometry);
+      });
+      
+      drawnPolygons.clearLayers();
+      drawnLines.clearLayers();
+  alert(GEO_ID +" selected for merging");
+  if(mergeIndex == 2)
+  {
+    var union = turf.union(polygons[0], polygons[1]);
+    console.log(union);
+    L.geoJSON(union, {
+    style: function(feature) {
+      return {color: "red"};
+    }
+}).addTo(drawnPolygons);
+    //L.geoJSON(union).addTo(drawnPolygons); 
+    polygons =[];
+    mergeIndex = 0;
+  }
+}
+function tempEdit(GEO_ID)
+{
+  var drawnGeoJSON = L.geoJSON(geojsonFeature, 
+  {
+            filter: function (feature) {
+                return feature.properties.GEO_ID === GEO_ID;
+            }
+   });
+        drawnGeoJSON = drawnGeoJSON.toGeoJSON();
+      var drawnGeometry = turf.getGeom(drawnGeoJSON);
+      polygons = [];
+      unkinked = turf.unkinkPolygon(drawnGeometry);
+      turf.geomEach(unkinked, function (geometry) 
+      {
+        polygons.push(geometry);
+      });
+      drawnPolygons.clearLayers();
+      drawnLines.clearLayers();
+}
+  const cutIdPrefix = 'cut_';
+  var polygons = [];
+  
+  function cutPolygonStyle(feature) {
+    var id, color;
+    
+    id = feature.properties.id;
+    if (typeof(id) !== 'undefined') {
+      id = id.substring(0, (cutIdPrefix.length + 1))
+    }
+
+    if (id == cutIdPrefix + '1')
+      color = 'green';
+    else if (id == cutIdPrefix + '2')
+      color = 'red';
+    else {
+      color = '#3388ff';
+    }      
+    return {color: color, opacity: 0.5, fillOpacity: 0.1};
+  }
+            
+  map.on(L.Draw.Event.CREATED, function (event) {
+    var drawnLayer, drawnGeoJSON, drawnGeometry, unkinked;
+    var newPolygons = [];
+    debugger;
+    drawnLayer = event.layer;
+    drawnGeoJSON = drawnLayer.toGeoJSON();
+    drawnGeometry = turf.getGeom(drawnGeoJSON);
+    
+    if (drawnGeometry.type == 'Polygon') 
+    {
+      polygons = [];
+      unkinked = turf.unkinkPolygon(drawnGeometry);
+      turf.geomEach(unkinked, function (geometry) 
+      {
+        polygons.push(geometry);
+      });
+      drawnPolygons.clearLayers();
+      drawnLines.clearLayers();
+      drawnPolygons.addLayer(drawnLayer);
+      }
+    else if (drawnGeometry.type == 'LineString') 
+    {
+      drawnLines.addLayer(drawnLayer);
+      drawnPolygons.clearLayers();
+      polygons.forEach(function (polygon, index) 
+      {
+        var cutPolygon = polygonCut(polygon, drawnGeometry, cutIdPrefix);
+        if (cutPolygon != null) {
+          L.geoJSON(cutPolygon, {
+            style: cutPolygonStyle
+          }).addTo(drawnPolygons);   
+          turf.geomEach(cutPolygon, function (geometry) {
+            newPolygons.push(geometry);
+          });
+          }
+        else {
+          L.geoJSON(polygon).addTo(drawnPolygons);   
+          newPolygons.push(polygon);
+        }
+      });
+      polygons = newPolygons;
+      console.log(polygons);
+      drawnLines.clearLayers();
+      
+    }
+    console.log(polygons);
+  });
+
+  function polygonCut(polygon, line, idPrefix) {
+    const THICK_LINE_UNITS = 'kilometers';
+    const THICK_LINE_WIDTH = 0.001;
+    var i, j, id, intersectPoints, lineCoords, forCut, forSelect;
+    var thickLineString, thickLinePolygon, clipped, polyg, intersect;
+    var polyCoords = [];
+    var cutPolyGeoms = [];
+    var cutFeatures = [];
+    var offsetLine = [];
+    var retVal = null;
+    
+    if (((polygon.type != 'Polygon') && (polygon.type != 'MultiPolygon')) || (line.type != 'LineString')) {
+      return retVal;
+    }
+    
+    if (typeof(idPrefix) === 'undefined') {
+      idPrefix = '';
+    }
+    
+    intersectPoints = turf.lineIntersect(polygon, line);
+    if (intersectPoints.features.length == 0) {
+      return retVal;
+    }
+      
+    var lineCoords = turf.getCoords(line);
+    if ((turf.booleanWithin(turf.point(lineCoords[0]), polygon) ||
+        (turf.booleanWithin(turf.point(lineCoords[lineCoords.length - 1]), polygon)))) {
+      return retVal;
+    }
+
+    offsetLine[0] = turf.lineOffset(line, THICK_LINE_WIDTH, {units: THICK_LINE_UNITS});
+    offsetLine[1] = turf.lineOffset(line, -THICK_LINE_WIDTH, {units: THICK_LINE_UNITS});
+
+    for (i = 0; i <= 1; i++) {
+      forCut = i; 
+      forSelect = (i + 1) % 2; 
+      polyCoords = [];
+      for (j = 0; j < line.coordinates.length; j++) {
+        polyCoords.push(line.coordinates[j]);
+      }
+       for (j = (offsetLine[forCut].geometry.coordinates.length - 1); j >= 0; j--) {
+        polyCoords.push(offsetLine[forCut].geometry.coordinates[j]);
+      }
+      polyCoords.push(line.coordinates[0]);
+      
+      thickLineString = turf.lineString(polyCoords);
+      thickLinePolygon = turf.lineToPolygon(thickLineString);
+      clipped = turf.difference(polygon, thickLinePolygon);
+     
+      cutPolyGeoms = [];
+      for (j = 0; j < clipped.geometry.coordinates.length; j++) {
+        polyg = turf.polygon(clipped.geometry.coordinates[j]);
+        intersect = turf.lineIntersect(polyg, offsetLine[forSelect]);
+        if (intersect.features.length > 0) {
+          cutPolyGeoms.push(polyg.geometry.coordinates);
+        }
+      }
+      
+      cutPolyGeoms.forEach(function (geometry, index) {
+        id = idPrefix + (i + 1) + '.' +  (index + 1);
+        cutFeatures.push(turf.polygon(geometry, {id: id}));
+      });
+    }
+    
+    if (cutFeatures.length > 0) retVal = turf.featureCollection(cutFeatures);
+    
+    return retVal;
+  }
+
+
+
+</script>
+</body>
+</html>

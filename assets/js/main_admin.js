@@ -4,11 +4,13 @@ var polygon = null;
 var radiusCircle = null;
 var currentlayer;
 var territories_lyr=new L.LayerGroup()
-var territories_data 
+var territories_data=''
 var mylayercontrol 
 var new_created_lyr
 var drawnPolygons = L.featureGroup();
 var drawnLines = L.featureGroup();
+var VA_electric_flyr
+var backup_Datetime='';
 
 
 
@@ -346,6 +348,7 @@ setTimeout(function(){
     var overLays = {
       "Territories Layer":territories_lyr,
       "Counties Map Overlay": uscountieslyr,
+      "VA Electric Territories": VA_electric_flyr,
       // "Trees & Graphics": trees_layer,
       // "Clouds": clouds_layer
       };
@@ -461,126 +464,131 @@ function terri_layerclick(e) {
 
 var trr_indx=0
 function edit_terr_data(uniqid){
-console.log(uniqid)
-
-trr_indx=territories_data.features.findIndex(x => x.properties.unique_id === uniqid)
-
-$("#mterr_id").val(territories_data.features[trr_indx].properties.terr_id)
-$("#mRecName").val(territories_data.features[trr_indx].properties.rep_name)
-$("#mRecEmail").val(territories_data.features[trr_indx].properties.rep_email)
-$("#mColor").val(territories_data.features[trr_indx].properties.color)
-
-$('#terr_edit_Modal').modal('show'); 
+  console.log(uniqid)
+  trr_indx=territories_data.features.findIndex(x => x.properties.unique_id === uniqid)
+  $("#mterr_id").val(territories_data.features[trr_indx].properties.terr_id)
+  $("#mRecName").val(territories_data.features[trr_indx].properties.rep_name)
+  $("#mRecEmail").val(territories_data.features[trr_indx].properties.rep_email)
+  $("#mColor").val(territories_data.features[trr_indx].properties.color)
+  $('#terr_edit_Modal').modal('show'); 
 }
 
 
 function saveterr_edited_data(){
-  var terr_id=$("#mterr_id").val()
-  var mRecName=$("#mRecName").val()
-  var mRecEmail=$("#mRecEmail").val()
-  var mColor=$("#mColor").val()
+  var result = confirm("Are you really want to update this item?");
+  if(result){
+    var terr_id=$("#mterr_id").val()
+    var mRecName=$("#mRecName").val()
+    var mRecEmail=$("#mRecEmail").val()
+    var mColor=$("#mColor").val()
 
-  // var terr_idx=territories_data.features.findIndex(x => x.properties.terr_id === terr_id)
-  var props = territories_data.features[trr_indx].properties 
-  // props.id = Number(terr_id);
-  props.color = Number(mColor);
-  props.rep_name = mRecName;
-  props.rep_email = mRecEmail;
-  props.terr_id = Number(terr_id);
+    // var terr_idx=territories_data.features.findIndex(x => x.properties.terr_id === terr_id)
+    var props = territories_data.features[trr_indx].properties 
+    // props.id = Number(terr_id);
+    props.color = Number(mColor);
+    props.rep_name = mRecName;
+    props.rep_email = mRecEmail;
+    props.terr_id = Number(terr_id);
 
 
-  setTimeout(function(){
-    var dataString = JSON.stringify(territories_data);
-    // $.ajax({
-    //         type: "POST",
-    //         dataType: "json",
-    //         url: "services/update_json_data.php",
-    //         data: {myData:dataString},
-    //         // contentType: "application/json; charset=utf-8",
-    //         success: function(data){
-    //             // alert('Items added');
-    //         },
-    //         error: function(e){
-    //             console.log(e.message);
-    //         }
-    // });
-    map.closePopup();
-    map.removeLayer(territories_lyr)
-    territories_lyr=new L.LayerGroup()
-    maketerritories()
-    map.addLayer(territories_lyr)
-    $("#states_list").empty()
-    generateList();
-    alert("Polygon Data Edited Successfully")
-    $('#terr_edit_Modal').modal('hide'); 
-    map.removeControl(mylayercontrol);
     setTimeout(function(){
-      var overLays = {
-        "Territories Layer":territories_lyr,
-        "Counties Map Overlay": uscountieslyr,
-        };
-        mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
-    },700)
-},200)
-
+      var dataString = JSON.stringify(territories_data);
+      $.ajax({
+              type: "POST",
+              dataType: "json",
+              url: "services/update_json_data.php",
+              data: {myData:dataString},
+              // contentType: "application/json; charset=utf-8",
+              success: function(data){
+                  // alert('Items added');
+              },
+              error: function(e){
+                  console.log(e.message);
+              }
+      });
+      map.closePopup();
+      map.removeLayer(territories_lyr)
+      territories_lyr=new L.LayerGroup()
+      maketerritories()
+      map.addLayer(territories_lyr)
+      $("#states_list").empty()
+      generateList();
+      alert("Polygon Data Edited Successfully")
+      $('#terr_edit_Modal').modal('hide'); 
+      map.removeControl(mylayercontrol);
+      setTimeout(function(){
+        var overLays = {
+          "Territories Layer":territories_lyr,
+          "Counties Map Overlay": uscountieslyr,
+          "VA Electric Territories": VA_electric_flyr,
+          };
+          mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
+      },700)
+    },200)
+  }
 
 }
 
 
 
 function delete_terr(uniqid){
-  var findx=territories_data.features.findIndex(x => x.properties.unique_id === uniqid)
-  territories_data.features.splice(findx, 1);
+  var askconf = confirm("Are you really want to delete this item?");
+  if(askconf){
+    var findx=territories_data.features.findIndex(x => x.properties.unique_id === uniqid)
+    territories_data.features.splice(findx, 1);
 
-  setTimeout(function(){
-    var dataString = JSON.stringify(territories_data);
-    // $.ajax({
-    //         type: "POST",
-    //         dataType: "json",
-    //         url: "services/update_json_data.php",
-    //         data: {myData:dataString},
-    //         // contentType: "application/json; charset=utf-8",
-    //         success: function(data){
-    //             // alert('Items added');
-    //         },
-    //         error: function(e){
-    //             console.log(e.message);
-    //         }
-    // });
-    
-    map.removeLayer(territories_lyr)
-    territories_lyr=new L.LayerGroup()
-    drawnItems.clearLayers();
-    maketerritories()
-    map.addLayer(territories_lyr)
-    // $("#states_list").empty()
-    // generateList();
-    map.closePopup();
-    alert("Territory Removed Successfully")
-    // fly_aftr_split(fid)l
-    map.removeControl(mylayercontrol);
     setTimeout(function(){
-      var overLays = {
-        "Territories Layer":territories_lyr,
-        "Counties Map Overlay": uscountieslyr,
-        };
-        mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
-    },900)
-  },500)
-
+      var dataString = JSON.stringify(territories_data);
+      $.ajax({
+              type: "POST",
+              dataType: "json",
+              url: "services/update_json_data.php",
+              data: {myData:dataString},
+              // contentType: "application/json; charset=utf-8",
+              success: function(data){
+                  // alert('Items added');
+              },
+              error: function(e){
+                  console.log(e.message);
+              }
+      });
+      
+      // map.removeLayer(territories_lyr)
+      // territories_lyr=new L.LayerGroup()
+      // drawnItems.clearLayers();
+      // maketerritories()
+      // map.addLayer(territories_lyr)
+      // // $("#states_list").empty()
+      // // generateList();
+      // map.closePopup();
+      // fly_aftr_split(fid)l
+      // map.removeControl(mylayercontrol);
+      // setTimeout(function(){
+      //   var overLays = {
+      //     "Territories Layer":territories_lyr,
+      //     "Counties Map Overlay": uscountieslyr,
+      //     "VA Electric Territories": VA_electric_flyr,
+      //     };
+      //     mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
+      // },900)
+      alert("Territory Removed Successfully")
+      location.reload(true)
+    },500)
+  }
 }
 
 
 
 function generateList() {
-  const statesdiv = document.querySelector('#states_list');
+  var sortedbyid_terr_data=territories_data.features.sort(function(a, b){
+    return a.properties.terr_id - b.properties.terr_id;
+  });
   var str=''
- 
-  for(var i=0; i<territories_data.features.length; i++ ){
-    var terr_unique_id = "'"+territories_data.features[i].properties.unique_id+"'";
+  for(var i=0; i<sortedbyid_terr_data.length; i++ ){
+    var terr_unique_id = "'"+sortedbyid_terr_data[i].properties.unique_id+"'";
     str=str+"<div class='territory-item'>";
-     str=str+"<a href='#' onclick=\"flyTotritory("+terr_unique_id+")\" id='trr_'>"+territories_data.features[i].properties.terr_id+":  "+territories_data.features[i].properties.rep_name+"</a>";
-     str=str+"<br><p style='text-align: center;  font-size: 11px;'>"+territories_data.features[i].properties.rep_email+"</p>";
+     str=str+"<a href='#' onclick=\"flyTotritory("+terr_unique_id+")\" id='trr_'>"+sortedbyid_terr_data[i].properties.terr_id+":  "+sortedbyid_terr_data[i].properties.rep_name+"</a>";
+     str=str+"<br><p style='text-align: center;  font-size: 11px;'>"+sortedbyid_terr_data[i].properties.rep_email+"</p>";
      str=str+"</div>"
   }
   $("#states_list").html(str)
@@ -589,6 +597,39 @@ function generateList() {
 setTimeout(function(){
   generateList();
 },1700)
+
+
+
+function sortbyId(){
+  $("#states_list").empty();
+  var sortedbyid_terr_data=territories_data.features.sort(function(a, b){
+    return a.properties.terr_id - b.properties.terr_id;
+  });
+  var str=''
+  for(var i=0; i<sortedbyid_terr_data.length; i++ ){
+    var terr_unique_id = "'"+sortedbyid_terr_data[i].properties.unique_id+"'";
+    str=str+"<div class='territory-item'>";
+     str=str+"<a href='#' onclick=\"flyTotritory("+terr_unique_id+")\" id='trr_'>"+sortedbyid_terr_data[i].properties.terr_id+":  "+sortedbyid_terr_data[i].properties.rep_name+"</a>";
+     str=str+"<br><p style='text-align: center;  font-size: 11px;'>"+sortedbyid_terr_data[i].properties.rep_email+"</p>";
+     str=str+"</div>"
+  }
+  $("#states_list").html(str)
+}
+function SortbyName(){
+  $("#states_list").empty();
+  var sortedbyid_terr_data=territories_data.features.sort(function(a, b){
+    return a.properties.rep_name.localeCompare(b.properties.rep_name);
+  });
+  var str=''
+  for(var i=0; i<sortedbyid_terr_data.length; i++ ){
+    var terr_unique_id = "'"+sortedbyid_terr_data[i].properties.unique_id+"'";
+    str=str+"<div class='territory-item'>";
+     str=str+"<a href='#' onclick=\"flyTotritory("+terr_unique_id+")\" id='trr_'>"+sortedbyid_terr_data[i].properties.terr_id+":  "+sortedbyid_terr_data[i].properties.rep_name+"</a>";
+     str=str+"<br><p style='text-align: center;  font-size: 11px;'>"+sortedbyid_terr_data[i].properties.rep_email+"</p>";
+     str=str+"</div>"
+  }
+  $("#states_list").html(str)
+}
 
 var tlyr_arr_fly_index
 function flyTotritory(u_id) {
@@ -845,7 +886,8 @@ map.on(L.Draw.Event.CREATED, function (event) {
       layer._latlng.lng
       layer._mRadius
   
-      var radius_inkm= (layer._mRadius/1000).toFixed(2);
+      var radius_inkm= Math.round((layer._mRadius/1000).toFixed(2));
+      console.log(radius_inkm);
       // var radius_inkm = radius.toFixed(2)
       var miles = (radius_inkm / 1.609).toFixed(2);
   
@@ -856,10 +898,10 @@ map.on(L.Draw.Event.CREATED, function (event) {
         dataType: "json",
         // contentType: "application/json; charset=utf-8",
         success: function(data){
-            console.log(data);
+            console.log(data[0]);
   
             var content='' 
-          content=content+"<h4><strong> Population: </strong>" + data.people + "</h4>"+"<strong> Bus Stops: </strong>" + data.busStops + "<br/>"+"<strong> Rail Stops: </strong>" + data.railStops + "<br/>"+"<strong>Tram Stops: </strong>" + data.tramStops+ "<br/>"+"<b style='font-size: 11px;'>Radius in KM & Miles: " + radius_inkm+"km, "+miles+"mi</b>"
+          content=content+"<h4><strong> Population: </strong>" + data[0].people + "</h4>"+"<strong> Bus Stops: </strong>" + data[0].busStops + "<br/>"+"<strong> Rail Stops: </strong>" + data[0].railStops + "<br/>"+"<strong>Tram Stops: </strong>" + data[0].tramStops+ "<br/>"+"<b style='font-size: 11px;'>Radius in KM & Miles: " + radius_inkm+"km, "+miles+"mi</b>"
           $("#div_output").html(content)
         },
         error: function(e){
@@ -962,11 +1004,11 @@ map.on(L.Draw.Event.CREATED, function (event) {
 
         var poly2props = splitedpoly2.properties = splitedpoly2.properties || {}; // Intialize feature.properties
         var p2geoid=territories_data.features.length+2
-        poly2props.GEO_ID   = p2geoid.toString();
+        poly2props.GEO_ID   = oldgeoid.toString();
         poly2props.color    = old_terr_props.color
         poly2props.rep_name = old_terr_props.rep_name 
         poly2props.rep_email= old_terr_props.rep_email 
-        poly2props.terr_id  = territories_data.features.length+2
+        poly2props.terr_id  = old_terr_props.terr_id
         poly2props.unique_id = unique_ID_creator().toString();
 
        
@@ -977,19 +1019,19 @@ map.on(L.Draw.Event.CREATED, function (event) {
       
         setTimeout(function(){
           var dataString = JSON.stringify(territories_data);
-          // $.ajax({
-          //         type: "POST",
-          //         dataType: "json",
-          //         url: "services/update_json_data.php",
-          //         data: {myData:dataString},
-          //         // contentType: "application/json; charset=utf-8",
-          //         success: function(data){
-          //             // alert('Items added');
-          //         },
-          //         error: function(e){
-          //             console.log(e.message);
-          //         }
-          // });
+          $.ajax({
+                  type: "POST",
+                  dataType: "json",
+                  url: "services/update_json_data.php",
+                  data: {myData:dataString},
+                  // contentType: "application/json; charset=utf-8",
+                  success: function(data){
+                      // alert('Items added');
+                  },
+                  error: function(e){
+                      console.log(e.message);
+                  }
+          });
           // map.closePopup();
           map.removeLayer(territories_lyr)
           territories_lyr=new L.LayerGroup()
@@ -1005,6 +1047,7 @@ map.on(L.Draw.Event.CREATED, function (event) {
           //   var overLays = {
           //     "Territories Layer":territories_lyr,
           //     "Counties Map Overlay": uscountieslyr,
+                // "VA Electric Territories": VA_electric_flyr,
           //     };
           //     mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
           // },500)
@@ -1152,20 +1195,20 @@ function saveIdIW(){
  territories_data.features.push(new_created_lyr);
 
   setTimeout(function(){
-    // var dataString = JSON.stringify(territories_data);
-    // $.ajax({
-    //         type: "POST",
-    //         dataType: "json",
-    //         url: "services/update_json_data.php",
-    //         data: {myData:dataString},
-    //         // contentType: "application/json; charset=utf-8",
-    //         success: function(data){
-    //             // alert('Items added');
-    //         },
-    //         error: function(e){
-    //             console.log(e.message);
-    //         }
-    // });
+    var dataString = JSON.stringify(territories_data);
+    $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: "services/update_json_data.php",
+            data: {myData:dataString},
+            // contentType: "application/json; charset=utf-8",
+            success: function(data){
+                // alert('Items added');
+            },
+            error: function(e){
+                console.log(e.message);
+            }
+    });
 
     map.closePopup();
     map.removeLayer(territories_lyr)
@@ -1181,6 +1224,7 @@ function saveIdIW(){
       var overLays = {
         "Territories Layer":territories_lyr,
         "Counties Map Overlay": uscountieslyr,
+        "VA Electric Territories": VA_electric_flyr,
         };
         mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
     },700)
@@ -1278,6 +1322,7 @@ function saveIdIW(){
 //     //   var overLays = {
 //     //     "Territories Layer":territories_lyr,
 //     //     "Counties Map Overlay": uscountieslyr,
+              // "VA Electric Territories": VA_electric_flyr,
 //     //     };
 //     //     mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
 //     // },500)
@@ -1338,6 +1383,7 @@ $("#save_all_edited").click(function(){
         var overLays = {
           "Territories Layer":territories_lyr,
           "Counties Map Overlay": uscountieslyr,
+          "VA Electric Territories": VA_electric_flyr,
           };
           mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
       },700)
@@ -1348,6 +1394,346 @@ $("#save_all_edited").click(function(){
   
 });
 
+
+
+
+
+
+function backup_current_data(){
+  // // For todays date;
+  // Date.prototype.today = function () { 
+  //   return ((this.getDate() < 10)?"0":"") + this.getDate() +"/"+(((this.getMonth()+1) < 10)?"0":"") + (this.getMonth()+1) +"/"+ this.getFullYear();
+  // }
+  // // For the time now
+  // Date.prototype.timeNow = function () {
+  //   return ((this.getHours() < 10)?"0":"") + this.getHours() +":"+ ((this.getMinutes() < 10)?"0":"") + this.getMinutes();
+  // }
+  // var datetime_now =new Date().today() + "@" + new Date().timeNow();
+
+
+  var today = new Date();
+  var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+  var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+  var dateTimenow = date+' '+time;
+
+  var json_datetime=JSON.stringify({"datetime_now":dateTimenow})
+
+
+
+  var dataString = JSON.stringify(territories_data);
+  $.ajax({
+          type: "POST",
+          dataType: "json",
+          url: "services/save_to_backup.php",
+          data: {myData:dataString},
+          // contentType: "application/json; charset=utf-8",
+          success: function(data){
+              // alert('Items added');
+          },
+          error: function(e){
+              console.log(e.message);
+          }
+  });
+
+  $.ajax({
+          type: "POST",
+          dataType: "json",
+          url: "services/save_backup_dateTime.php",
+          data: {myData:json_datetime},
+          // contentType: "application/json; charset=utf-8",
+          success: function(data){
+              // alert('Items added');
+              console.log("sucess")
+          },
+          error: function(e){
+              console.log(e.message);
+          }
+  });
+
+  alert("All Current Data saved on server as Backup Successfully Dated: "+json_datetime)
+  
+  $.getJSON('assets/data/backup_dateTime.json', function(jsonData) {
+    // console.log(jsonData)
+    if(!jsonData.datetime_now==''){
+      backup_Datetime = jsonData.datetime_now;
+    }
+    $("#restore_datetime").html(backup_Datetime)
+  }); 
+  location.reload(true)
+}
+
+
+
+$.getJSON('assets/data/backup_dateTime.json', function(jsonData) {
+  // console.log(jsonData)
+  if(!jsonData.datetime_now==''){
+    backup_Datetime = jsonData.datetime_now;
+  }
+  $("#restore_datetime").html(backup_Datetime)
+});  
+
+setTimeout(function(){
+  console.log(backup_Datetime)
+},1000)
+
+
+
+function restore_saved_data(){
+  $.ajax({
+    url: "services/restore_backup_data.php",
+    type: "GET",
+    // dataType: "json",
+    success: function(data){
+      $.getJSON('assets/data/test.json', function(jsonData) {
+        // console.log(jsonData)
+        territories_data = jsonData; 
+
+        map.removeLayer(territories_lyr)
+        territories_lyr=new L.LayerGroup()
+        maketerritories()
+        map.addLayer(territories_lyr)
+        $("#states_list").empty()
+        generateList();
+        map.removeControl(mylayercontrol);
+        setTimeout(function(){
+          var overLays = {
+            "Territories Layer":territories_lyr,
+            "Counties Map Overlay": uscountieslyr,
+            "VA Electric Territories": VA_electric_flyr,
+            };
+            mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
+        },700)
+        alert("Restored "+backup_Datetime+"  data Successfully")
+
+      });  
+    },
+    error: function(e){
+        console.log(e.message);
+    }
+  });
+  location.reload(true)
+}
+
+
+$('#legenddiv').css('visibility','hidden');
+
+
+var furl='https://services3.arcgis.com/Ww6Zhg5FR2pLMf1C/arcgis/rest/services/VA_Electric_2016/FeatureServer/0';
+ VA_electric_flyr=L.esri.featureLayer({
+    url: furl,
+    opacity: 1,
+    style: (feature) => {
+        let style = {
+            fillColor: "black",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+        };
+        if (feature.properties.Utility === "Appalachian Power Company") {
+            return {
+            fillColor: "#E08F94",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        // style.fillColor = "red";
+      
+        } 
+        else if (feature.properties.Utility === "Kentucky Utilities/Old Dominion Power Company") {
+            return {
+            fillColor: "#70AE8F",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Dominion Virginia Power") {
+            return {
+            fillColor: "yellow",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "A&N Electric Cooperative") {
+            return {
+            fillColor: "#F6C39F",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "BARC Electric Cooperative") {
+            return {
+            fillColor: "green",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Craig Botetourt Electric Cooperative") {
+            return {
+            fillColor: "#92E660",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Community Electric Cooperative") {
+            return {
+            fillColor: "#B4D3B2",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Central Virginia Electric Cooperative") {
+            return {
+            fillColor: "#74DBEF",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Mecklenburg Electric Cooperative") {
+            return {
+            fillColor: "#F9DAD3",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Northern Neck Electric Cooperative") {
+            return {
+            fillColor: "#F9EED5",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Northern Virginia Electric") {
+            return {
+            fillColor: "#C4B697",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Powell Valley Electric Cooperative") {
+            return {
+            fillColor: "#9C9D9A",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Prince George Electric Cooperative") {
+            return {
+            fillColor: "#6f03fc",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Rappahannock Electric Cooperative") {
+            return {
+            fillColor: "#C2E3E8",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Southside Electric Cooperative") {
+            return {
+            fillColor: "#EBE8E3",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Shenandoah Valley Electric Cooperative") {
+            return {
+            fillColor: "blue",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+
+        else {
+        style.fillColor = "black";
+        }
+
+        return style;
+    }
+});
+  
+
+
+VA_electric_flyr.bindPopup(function (layer) {
+      console.log(layer);
+      // return L.Util.template("<b>District</b><br>{district_n}</br>", layer.feature.properties);
+      // return L.Util.template('<b>Utility: </b>{Utility}<br><b>Phone: </b>{Phone}</br><b>Website: </b><a href="https://{Website}/" target="_blank">{Website}</a></br><b>Provider: </b>{Provider}</br><b>Provider_1: </b>{Provider_1}</br>', layer.feature.properties);
+      return L.Util.template('<b>Utility: </b>{Utility}<br><b>Phone: </b>{Phone}</br><b>Website: </b>{Website}</br><b>Provider: </b>{Provider}</br><b>Provider_1: </b>{Provider_1}</br>', layer.feature.properties);
+  
+  });
+
+
+
+
+
+
+  map.on('overlayadd', function(e) {
+    if(e.name=="VA Electric Territories"){
+        // $('#legenddiv').show();
+        setTimeout(function(){
+        $('#legenddiv').css('visibility','visible');
+        console.log('Changed to ' + e.name);
+        }, 2000);
+        
+    }
+    
+});
+map.on('overlayremove', function(e) {
+    if(e.name=="VA Electric Territories"){
+        $('#legenddiv').css('visibility','hidden');
+        console.log('Changed to ' + e.name);
+    }
+});
 
 
 

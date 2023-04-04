@@ -12,14 +12,23 @@ if (isset($_SESSION['VA_ADMIN'])) {
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <meta http-equiv='cache-control' content='no-cache'>
+    <meta http-equiv='expires' content='0'>
+    <meta http-equiv='pragma' content='no-cache'>
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+
     <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
 
+
+
     <title>ADMIN_MAP</title>
+    <link rel="icon" type="image/x-icon" href="assets/img/logo.png">
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
           <!-- jQuery library -->
@@ -31,7 +40,8 @@ if (isset($_SESSION['VA_ADMIN'])) {
 
 
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" crossorigin=""></script>
   
 
     <link rel="stylesheet" href="assets/css/app.css">
@@ -78,7 +88,7 @@ if (isset($_SESSION['VA_ADMIN'])) {
            <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;TOC</a></li>
             -->
             <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;TOC</a></li>
-            <li class="hidden-xs" style="margin-left: 480px;"><a class="navbar-brand" href="#">Admin,    VA_Territory_Map  </a></li>
+            <li class="hidden-xs" style="margin-left: 450px;"><a class="navbar-brand" href="#">Sunrun Solar Admin,    VA_Territory_Map  </a></li>
            
 
             
@@ -107,13 +117,13 @@ if (isset($_SESSION['VA_ADMIN'])) {
             </div>
 
             <div  class="panel-body" >
-                <button type="button" class="btn btn-primary" style="margin-left:10%;" id="btnGetLoc"><i class="fas fa-map-marked-alt" style="font-size:20px;color:black"></i> Current Location</button>
+                <button type="button" class="btn btn-primary" style="margin-left:1%;" id="btnGetLoc"><i class="fas fa-map-marked-alt" style="font-size:20px;color:black"></i> Current Location</button>
                 <br>
                 <button  class="btn btn-info" id="popdrawcircle" style="margin-left:1%; margin-top: 2%;">
                   <i class="fa-solid fa-users-viewfinder" aria-hidden="true" style="font-size:20px;color:black"></i>
                   <span style="font-size:18px">Find Population</span><br/>
-                  </i><i class="fa-regular fa-circle" aria-hidden="true" style="font-size:20px;color:black"></i>
-                  <span style="font-size:10px">Click me & Draw Circle On Map</span>
+                  <!-- </i><i class="fa-regular fa-circle" aria-hidden="true" style="font-size:20px;color:black"></i>
+                  <span style="font-size:10px">Click me & Draw Circle On Map</span> -->
                 </button>
                 <br>
                 <div id="div_output" name="div_output" style="color: green; margin-left:2%;"></div>
@@ -127,13 +137,11 @@ if (isset($_SESSION['VA_ADMIN'])) {
                 </button>
                 <br>
         
-                <button  class="btn btn-danger" id="save_all_edited" style="margin-left:1%; margin-top: 2%;">
-                  <i class="fas fa-save" aria-hidden="true" style="font-size:20px;color:black"></i>
+                <!-- <button  class="btn btn-danger" id="save_all_edited" style="margin-left:1%; margin-top: 2%;">
+                  <i class="fa-solid fa-database" aria-hidden="true" style="font-size:20px;color:black;"></i>
                   <span style="font-size:13px">Save all changes on Server</span><br/>
-                  <i class="fa-solid fa-database" aria-hidden="true" style="font-size:20px;color:black"></i>
-                  <span style="font-size:10px">save all edited data to server</span>
                 </button>
-                <br>
+                <br> -->
                 <!-- <button  class="btn btn-warning" id="split_polygon" style="margin-left:0%; margin-top: 2%;">
                   <i class="fas fa-globe-americas" aria-hidden="true" style="font-size:20px;color:black"></i>
                   <span style="font-size:18px">Split Territory </span><br/>
@@ -141,8 +149,16 @@ if (isset($_SESSION['VA_ADMIN'])) {
                   <span style="font-size:9px">Click Territory on Map & Draw Split Line</span>
                 </button>
                 <br> -->
+                <button  class="btn btn-danger" id="sortbyid" onclick="backup_current_data()" style="font-size:13px; border-radius: 0px; cursor: pointer; margin-left:1%; margin-top: 2%;"><i class="fa-solid fa-database" aria-hidden="true" style="font-size:13px;color:black;"></i> Save/Backup Current Data</button>
+                <button  class="btn btn-warning" id="sortbyname" onclick="restore_saved_data()" style="font-size:11px; padding-left:1px; padding-right:1px; cursor: pointer; border-radius: 0px; margin-left:1%; margin-top: 2%;"><i class="fa-sharp fa-solid fa-rotate" aria-hidden="true" style="font-size:11px;color:black;"></i> Restore Saved Data <span style="font-size:11px; color:red;" class="blink_me" id="restore_datetime"></span> </button>
+                <br>
+                <br>
+                <button  class="btn btn-info" id="sortbyid" onclick="sortbyId()" style="padding-left:5px; padding-right:5px; padding-top:1px; padding-bottom:1px; background-color:black; border: none; border-radius: 0px; cursor: pointer; margin-left:1%;  margin-bottom: 2%;">Sort By ID</button>
+                &nbsp&nbsp&nbsp&nbsp
+                <button  class="btn btn-info" id="sortbyname" onclick="SortbyName()" style="padding-left:5px; padding-right:5px; padding-top:1px; padding-bottom:1px; background-color:black; border: none; border-radius: 0px; cursor: pointer; margin-left:1%; margin-bottom: 2%;">Sort By Name</button>
+                <br>
                 
-                <div id="states_list" class="states_list" style="overflow: auto;height: 375px; max-height: 60%; margin-left: 5%;"></div>
+                <div id="states_list" class="states_list" style="overflow: auto;height: 50vh; max-height: 60%; margin-left: 5%;"></div>
             </div>
 
           </div>
@@ -187,6 +203,9 @@ if (isset($_SESSION['VA_ADMIN'])) {
 
       
       <div id="map">
+          <div id="legenddiv" style="z-index: 999999;">
+            <img class="legenddiv" src="assets/img/va_legend_complete.png" alt="">
+          </div>
           <div style="z-index: 1000000;position: absolute;padding-left: 100px;"  class="row">
         <!-- <div class="col-md-4">
                   <div class="card">
@@ -205,7 +224,9 @@ if (isset($_SESSION['VA_ADMIN'])) {
 
   
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    
+
+    <script src="https://unpkg.com/esri-leaflet@3.0.10/dist/esri-leaflet.js"></script>
 
 
 
@@ -221,14 +242,19 @@ if (isset($_SESSION['VA_ADMIN'])) {
 <!-- <script type="text/javascript" src="assets/data/tdata.js"></script> -->
 
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<!-- <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script> -->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/perliedman-leaflet-control-geocoder/1.9.0/Control.Geocoder.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/perliedman-leaflet-control-geocoder/1.9.0/Control.Geocoder.js"></script>
+
 
 <!-- <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" /> 
 <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>   -->
 
 	<!-- <script src="betterwms.js"></script> -->
-  <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
+  <!-- <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script> -->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js'></script>
 
 <link 
 rel="stylesheet" 
@@ -245,8 +271,11 @@ src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js">
 <link rel="stylesheet" href="assets/libs/owm.css"/> 
 <script src="assets/libs/owm.js"></script>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen@latest/Control.FullScreen.css" />
-<script src="https://unpkg.com/leaflet.fullscreen@latest/Control.FullScreen.js"></script>
+<!-- <link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen@latest/Control.FullScreen.css" />
+<script src="https://unpkg.com/leaflet.fullscreen@latest/Control.FullScreen.js"></script> -->
+
+<link rel="assets/libs/fullscreen/fullscreen.css" />
+<script src="assets/libs/fullscreen/fullscreen.js"></script>
 
 
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9GR0oF71wisbzR6xuV1k6gbmEBQlkmOc&libraries=places"></script>
@@ -268,6 +297,11 @@ src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js">
       function goto_url(){
         window.location = "index.html"; // Redirecting to other page.
       }
+
+    
+
+      
+
     </script>
 
    

@@ -336,14 +336,15 @@ setTimeout(function(){
 
 
 function generateList() {
-  const statesdiv = document.querySelector('#states_list');
+  var sortedbyid_terr_data=territories_data.features.sort(function(a, b){
+    return a.properties.terr_id - b.properties.terr_id;
+  });
   var str=''
- 
-  for(var i=0; i<territories_data.features.length; i++ ){
-    var terr_unique_id = "'"+territories_data.features[i].properties.unique_id+"'";
+  for(var i=0; i<sortedbyid_terr_data.length; i++ ){
+    var terr_unique_id = "'"+sortedbyid_terr_data[i].properties.unique_id+"'";
     str=str+"<div class='territory-item'>";
-     str=str+"<a href='#' onclick=\"flyTotritory("+terr_unique_id+")\" id='trr_'>"+territories_data.features[i].properties.terr_id+":  "+territories_data.features[i].properties.rep_name+"</a>";
-     str=str+"<br><p style='text-align: center;  font-size: 11px;'>"+territories_data.features[i].properties.rep_email+"</p>";
+     str=str+"<a href='#' onclick=\"flyTotritory("+terr_unique_id+")\" id='trr_'>"+sortedbyid_terr_data[i].properties.terr_id+":  "+sortedbyid_terr_data[i].properties.rep_name+"</a>";
+     str=str+"<br><p style='text-align: center;  font-size: 11px;'>"+sortedbyid_terr_data[i].properties.rep_email+"</p>";
      str=str+"</div>"
   }
   $("#states_list").html(str)
@@ -352,6 +353,39 @@ function generateList() {
 setTimeout(function(){
   generateList();
 },1700)
+
+function sortbyId(){
+  $("#states_list").empty();
+  var sortedbyid_terr_data=territories_data.features.sort(function(a, b){
+    return a.properties.terr_id - b.properties.terr_id;
+  });
+  // console.log(sortedbyid_terr_data)
+  var str=''
+  for(var i=0; i<sortedbyid_terr_data.length; i++ ){
+    var terr_unique_id = "'"+sortedbyid_terr_data[i].properties.unique_id+"'";
+    str=str+"<div class='territory-item'>";
+     str=str+"<a href='#' onclick=\"flyTotritory("+terr_unique_id+")\" id='trr_'>"+sortedbyid_terr_data[i].properties.terr_id+":  "+sortedbyid_terr_data[i].properties.rep_name+"</a>";
+     str=str+"<br><p style='text-align: center;  font-size: 11px;'>"+sortedbyid_terr_data[i].properties.rep_email+"</p>";
+     str=str+"</div>"
+  }
+  $("#states_list").html(str)
+}
+function SortbyName(){
+  $("#states_list").empty();
+  var sortedbyid_terr_data=territories_data.features.sort(function(a, b){
+    return a.properties.rep_name.localeCompare(b.properties.rep_name);
+  });
+  // console.log(sortedbyid_terr_data)
+  var str=''
+  for(var i=0; i<sortedbyid_terr_data.length; i++ ){
+    var terr_unique_id = "'"+sortedbyid_terr_data[i].properties.unique_id+"'";
+    str=str+"<div class='territory-item'>";
+     str=str+"<a href='#' onclick=\"flyTotritory("+terr_unique_id+")\" id='trr_'>"+sortedbyid_terr_data[i].properties.terr_id+":  "+sortedbyid_terr_data[i].properties.rep_name+"</a>";
+     str=str+"<br><p style='text-align: center;  font-size: 11px;'>"+sortedbyid_terr_data[i].properties.rep_email+"</p>";
+     str=str+"</div>"
+  }
+  $("#states_list").html(str)
+}
 
 var tlyr_arr_fly_index
 function flyTotritory(u_id) {

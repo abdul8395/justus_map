@@ -16,10 +16,15 @@ input[type="radio"], input[type="checkbox"] {
   max-width: 100%;
   float: left;
 }
+
+
 #map {
   width: auto;
   height: 100%;
-  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  /* color: #323232; */
+  color: rgb(255, 0, 0);
 }
 
 
@@ -181,6 +186,16 @@ img.huechange { filter: hue-rotate(155deg); }
   min-width: 220px;
   max-width: 250px;
   /* overflow-y: scroll; */
+}
+
+.legenddiv{
+  padding: 5px 50px 5px 30px;
+  width: 15%;
+  height: 35vh;
+  z-index: 99999;
+  position: fixed;
+  right: 0;
+  bottom: 0;
 }
 
 
