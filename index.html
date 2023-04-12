@@ -17,7 +17,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css"> -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" crossorigin="" />
 
     <link rel="stylesheet" href="assets/css/app.css">
 
@@ -55,8 +56,17 @@
             class="d-inline-block align-middle mr-2"></li><li class="hidden-xs" ><a class="" href="#">AFI</a></li>
            <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;TOC</a></li>
             -->
-            <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;TOC</a></li>
-            <li class="hidden-xs" style="margin-left: 480px;"><a class="navbar-brand" href="#">Sunrun Solar, VA_Territory_Map  </a></li>
+            <li class="hidden-xs" style="padding-left:0px;">
+              <img src="assets/img/sunrun_logo.png" style="padding-left:0px;" width="150"  height="47" alt="" class="d-inline-block align-middle">
+              <!-- <a class="navbar-brand" href="#">VA_Territory_Map  </a>   -->
+            </li>
+            <li class="hidden-xs" ><a  href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;TOC</a></li>
+            
+           
+            <!-- <li class="hidden-xs" style="margin-left: 530px;">
+              <img src="assets/img/sunrun_logo.png" width="150"  height="47" alt="" class="d-inline-block align-middle">
+            </li> -->
+            
 
             <!-- <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="about-btn"><i class="fa fa-question-circle white"></i>&nbsp;&nbsp;About</a></li>
            <li class="dropdown">
@@ -98,6 +108,9 @@
         </div>
       </div>
       <div id="map">
+        <div id="legenddiv" style="z-index: 999999;">
+            <img class="legenddiv" src="assets/img/va_legend_complete.png" alt="">
+        </div>
           <div style="z-index: 1000000;position: absolute;padding-left: 100px;"  class="row">
         <!-- <div class="col-md-4">
                   <div class="card">
@@ -115,7 +128,11 @@
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script> -->
+  
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" crossorigin=""></script>
+
+    <script src="https://unpkg.com/esri-leaflet@3.0.10/dist/esri-leaflet.js"></script>
 
 
     <link rel="stylesheet" href="assets/libs/mortiz_locate.css" />

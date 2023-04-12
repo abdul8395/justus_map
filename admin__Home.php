@@ -87,8 +87,14 @@ if (isset($_SESSION['VA_ADMIN'])) {
             class="d-inline-block align-middle mr-2"></li><li class="hidden-xs" ><a class="" href="#">AFI</a></li>
            <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;TOC</a></li>
             -->
-            <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;TOC</a></li>
-            <li class="hidden-xs" style="margin-left: 450px;"><a class="navbar-brand" href="#">Sunrun Solar Admin,    VA_Territory_Map  </a></li>
+            <li class="hidden-xs" style="padding-left:0px;">
+              <img src="assets/img/sunrun_logo.png" style="padding-left:0px;" width="150"  height="47" alt="" class="d-inline-block align-middle">
+              <!-- <a class="navbar-brand" href="#">VA_Territory_Map  </a>   -->
+            </li>
+            <li class="hidden-xs" ><a  href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;TOC</a></li>
+            
+            <!-- <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;TOC</a></li>
+            <li class="hidden-xs" style="margin-left: 450px;"><a class="navbar-brand" href="#">Sunrun Solar Admin,    VA_Territory_Map  </a></li> -->
            
 
             

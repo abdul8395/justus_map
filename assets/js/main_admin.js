@@ -47,11 +47,11 @@ var openstreet   = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.p
 
 
 
-map.zoomControl.setPosition('bottomright');
+
 var googlestreet   = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
     maxZoom: 20,
     subdomains:['mt0','mt1','mt2','mt3']
-    }).addTo(map)
+    })
 
 
 
@@ -69,17 +69,17 @@ var googlestreet   = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z=
       })
       geocoder.addTo(map);
 
+      map.zoomControl.setPosition('bottomright');
 
-
-    L.control.fullscreen({
-      position: 'topright', // change the position of the button can be topleft, topright, bottomright or bottomleft, default topleft
-      // title: 'Show me the fullscreen !', // change the title of the button, default Full Screen
-      // titleCancel: 'Exit fullscreen mode', // change the title of the button when fullscreen is on, default Exit Full Screen
-      // content: null, // change the content of the button, can be HTML, default null
-      // forceSeparateButton: true, // force separate button to detach from zoom buttons, default false
-      // forcePseudoFullscreen: true, // force use of pseudo full screen even if full screen API is available, default false
-      // fullscreenElement: false // Dom element to render in full screen, false by default, fallback to map._container
-    }).addTo(map);
+      L.control.fullscreen({
+        position: 'bottomright', // change the position of the button can be topleft, topright, bottomright or bottomleft, default topleft
+        // title: 'Show me the fullscreen !', // change the title of the button, default Full Screen
+        // titleCancel: 'Exit fullscreen mode', // change the title of the button when fullscreen is on, default Exit Full Screen
+        // content: null, // change the content of the button, can be HTML, default null
+        // forceSeparateButton: true, // force separate button to detach from zoom buttons, default false
+        // forcePseudoFullscreen: true, // force use of pseudo full screen even if full screen API is available, default false
+        // fullscreenElement: false // Dom element to render in full screen, false by default, fallback to map._container
+      }).addTo(map);
     
 
 
@@ -103,14 +103,16 @@ var googlestreet   = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z=
   var overlayMaps = { "Clouds": clouds,"CloudHistory":cloudscls,"Precipitation":precipitation,"precipitationHistory":precipitationcls,"Rain":rain,"RainHistory":raincls,"Snow":snow,"Pressure":pressure,"Pressure Contours":pressurecntr,"Temprature":temp,"Wind":wind };
   
   
-
+  var Esri_WorldImagery = L.esri.basemapLayer('Imagery').addTo(map)
 
 var baseLayers = {
 "Google Street Map": googlestreet,
 "Google Sattellite Map": googleSat,
+"NVRC_Esri_Imagery": Esri_WorldImagery,
 "Open Street Map": openstreet,
 "Dark Map": dark,
 "Plain Map": plain
+
 };
 
 
@@ -340,7 +342,27 @@ setTimeout(function(){
 
 
 
+  var gradiant_heat_lyr=L.esri.tiledMapLayer({
+    url:"https://tiles.arcgis.com/tiles/6MUPhDX27Ne3DNOw/arcgis/rest/services/NVA_TPK/MapServer",
+  })
+  map.getPane("tilePane").style.zIndex = 100;
 
+  var co2lyr=L.esri.featureLayer({
+    url: "https://services5.arcgis.com/6MUPhDX27Ne3DNOw/arcgis/rest/services/BuildingFootprintCO2/FeatureServer/0",
+    style: function(feature) {
+        return {
+            color: "#ffffff",
+            opacity:0,
+            fillColor: "#ffffff",
+            fillOpacity: 0
+        };
+    }
+  })
+
+  co2lyr.on("mouseover", function (e) {
+    var prop=e.layer.feature.properties
+    co2lyr.bindPopup("<b>Address: </b>"+prop.Address+"<br> <b>Roof Area: </b> "+parseFloat(prop.Area).toFixed(2)+" Sq.Ft. <br> <b>Usable Roof Area #: </b>"+parseFloat(prop.UsblArea).toFixed(2)+" Sq.Ft <br> <b>Usable Roof Area %: </b> "+parseFloat(prop.PctArea).toFixed(2)+" % <br> <b>Solar System Size: </b>"+parseFloat(prop.SysSize).toFixed(2)+" kW <br> <b>Electricity Savings: $</b>"+parseFloat(prop.Savings).toFixed(2)+"<br> <b>Annual CO2 Averted: </b>"+parseFloat(prop.CO2Ton).toFixed(2)+" Tonz")
+  });
 
 
   setTimeout(function(){
@@ -349,10 +371,12 @@ setTimeout(function(){
       "Territories Layer":territories_lyr,
       "Counties Map Overlay": uscountieslyr,
       "VA Electric Territories": VA_electric_flyr,
+      "ROOFS SOLAR MAP": gradiant_heat_lyr,
+  
       // "Trees & Graphics": trees_layer,
       // "Clouds": clouds_layer
       };
-       mylayercontrol= L.control.layers(baseLayers,overLays).addTo(map);
+       mylayercontrol= L.control.layers(baseLayers,overLays,{collapsed:false}).addTo(map);
   },3000)
 
        
@@ -521,8 +545,10 @@ function saveterr_edited_data(){
           "Territories Layer":territories_lyr,
           "Counties Map Overlay": uscountieslyr,
           "VA Electric Territories": VA_electric_flyr,
+          "ROOFS SOLAR MAP": gradiant_heat_lyr,
+         
           };
-          mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
+          mylayercontrol = L.control.layers(baseLayers,overLays,{collapsed:false}).addTo(map);
       },700)
     },200)
   }
@@ -1225,8 +1251,10 @@ function saveIdIW(){
         "Territories Layer":territories_lyr,
         "Counties Map Overlay": uscountieslyr,
         "VA Electric Territories": VA_electric_flyr,
+        "ROOFS SOLAR MAP": gradiant_heat_lyr,
+        
         };
-        mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
+        mylayercontrol = L.control.layers(baseLayers,overLays,{collapsed:false}).addTo(map);
     },700)
   },200)
 }
@@ -1384,8 +1412,10 @@ $("#save_all_edited").click(function(){
           "Territories Layer":territories_lyr,
           "Counties Map Overlay": uscountieslyr,
           "VA Electric Territories": VA_electric_flyr,
+          "ROOFS SOLAR MAP": gradiant_heat_lyr,
+          
           };
-          mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
+          mylayercontrol = L.control.layers(baseLayers,overLays,{collapsed:false}).addTo(map);
       },700)
 
   
@@ -1500,8 +1530,10 @@ function restore_saved_data(){
             "Territories Layer":territories_lyr,
             "Counties Map Overlay": uscountieslyr,
             "VA Electric Territories": VA_electric_flyr,
+            "ROOFS SOLAR MAP": gradiant_heat_lyr,
+            
             };
-            mylayercontrol = L.control.layers(baseLayers,overLays).addTo(map);
+            mylayercontrol = L.control.layers(baseLayers,overLays,{collapsed:false}).addTo(map);
         },700)
         alert("Restored "+backup_Datetime+"  data Successfully")
 
@@ -1516,8 +1548,6 @@ function restore_saved_data(){
 
 
 $('#legenddiv').css('visibility','hidden');
-
-
 var furl='https://services3.arcgis.com/Ww6Zhg5FR2pLMf1C/arcgis/rest/services/VA_Electric_2016/FeatureServer/0';
  VA_electric_flyr=L.esri.featureLayer({
     url: furl,
@@ -1633,7 +1663,7 @@ var furl='https://services3.arcgis.com/Ww6Zhg5FR2pLMf1C/arcgis/rest/services/VA_
             fillOpacity: 0.8
             };
         } 
-        else if (feature.properties.Utility === "Northern Virginia Electric") {
+        else if (feature.properties.Utility === "Northern Virginia Electric Cooperative") {
             return {
             fillColor: "#C4B697",
             weight: 0.3,
@@ -1717,14 +1747,31 @@ VA_electric_flyr.bindPopup(function (layer) {
 
 
 
+  
+
   map.on('overlayadd', function(e) {
     if(e.name=="VA Electric Territories"){
         // $('#legenddiv').show();
         setTimeout(function(){
         $('#legenddiv').css('visibility','visible');
         console.log('Changed to ' + e.name);
-        }, 2000);
-        
+        }, 2000);  
+    }
+    if(e.name=="ROOFS SOLAR MAP"){
+      // map.getPane("tilePane").style.zIndex = 800;
+      map.addLayer(co2lyr)
+      // map.setView([38.88714129486354, -77.07550227642061], 18);
+      var cuurent_zoom=map.getZoom()
+      if(cuurent_zoom<17){
+        map.setView([38.84534810596939, -77.3061454296112], 17);
+      }
+
+      setTimeout(function(){
+        if(map.hasLayer(territories_lyr)){ //the old DistrictLayer
+          map.removeLayer(territories_lyr)
+        }
+      }, 500); 
+      
     }
     
 });
@@ -1732,6 +1779,10 @@ map.on('overlayremove', function(e) {
     if(e.name=="VA Electric Territories"){
         $('#legenddiv').css('visibility','hidden');
         console.log('Changed to ' + e.name);
+    }
+    if(e.name=="ROOFS SOLAR MAP"){
+      map.removeLayer(co2lyr)
+      // map.setView([38.57389610087847,-77.81616160646082], 9); 
     }
 });
 

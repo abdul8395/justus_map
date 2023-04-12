@@ -3,6 +3,7 @@
 
 var map
 var territories_data 
+var VA_electric_flyr
 var dark  = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
 // var dark  = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png');
 
@@ -28,12 +29,12 @@ var openstreet   = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.p
   zoom: 9,
   attributionControl: false
 });
-map.zoomControl.setPosition('bottomright');
+
 var googlestreet   = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
     maxZoom: 20,
     subdomains:['mt0','mt1','mt2','mt3']
-    }).addTo(map)
-
+    })
+    map.zoomControl.setPosition('bottomright');
 
 
     var geocoder=L.Control.geocoder({
@@ -53,7 +54,7 @@ var googlestreet   = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z=
 
 
     L.control.fullscreen({
-      position: 'topright', // change the position of the button can be topleft, topright, bottomright or bottomleft, default topleft
+      position: 'bottomright', // change the position of the button can be topleft, topright, bottomright or bottomleft, default topleft
       // title: 'Show me the fullscreen !', // change the title of the button, default Full Screen
       // titleCancel: 'Exit fullscreen mode', // change the title of the button when fullscreen is on, default Exit Full Screen
       // content: null, // change the content of the button, can be HTML, default null
@@ -63,11 +64,15 @@ var googlestreet   = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z=
     }).addTo(map);
 
 
+var Esri_WorldImagery = L.esri.basemapLayer('Imagery').addTo(map);
 
 
+
+   
 var baseLayers = {
 "Google Street Map": googlestreet,
-"Google Sattellite Map": googleSat,
+"Google Imagery/Sattellite": googleSat,
+"Esri_Imagery": Esri_WorldImagery,
 "Open Street Map": openstreet,
 "Dark Map": dark,
 "Plain Map": plain
@@ -114,9 +119,29 @@ var uscountieslyr=L.geoJson(uscounties, {
 // map.addLayer(uscountieslyr)
 
 
+   //  ......................Gradiant OR Heat MAP of NVRC................. 
+  var gradiant_heat_lyr=L.esri.tiledMapLayer({
+    url:"https://tiles.arcgis.com/tiles/6MUPhDX27Ne3DNOw/arcgis/rest/services/NVA_TPK/MapServer",
+  })
+  map.getPane("tilePane").style.zIndex = 100;
 
+var co2lyr=L.esri.featureLayer({
+  url: "https://services5.arcgis.com/6MUPhDX27Ne3DNOw/arcgis/rest/services/BuildingFootprintCO2/FeatureServer/0",
+  style: function(feature) {
+      return {
+          color: "#ffffff",
+          opacity:0,
+          fillColor: "#ffffff",
+          fillOpacity: 0
+      };
+  }
+})
 
-
+co2lyr.on("mouseover", function (e) {
+  var prop=e.layer.feature.properties
+ co2lyr.bindPopup("<b>Address: </b>"+prop.Address+"<br> <b>Roof Area: </b> "+parseFloat(prop.Area).toFixed(2)+" Sq.Ft. <br> <b>Usable Roof Area #: </b>"+parseFloat(prop.UsblArea).toFixed(2)+" Sq.Ft <br> <b>Usable Roof Area %: </b> "+parseFloat(prop.PctArea).toFixed(2)+" % <br> <b>Solar System Size: </b>"+parseFloat(prop.SysSize).toFixed(2)+" kW <br> <b>Electricity Savings: $</b>"+parseFloat(prop.Savings).toFixed(2)+"<br> <b>Annual CO2 Averted: </b>"+parseFloat(prop.CO2Ton).toFixed(2)+" Tonz")
+  
+});
 
 
 
@@ -126,11 +151,15 @@ setTimeout(function(){
   var overLays = {
     "Territories Layer":territories_lyr,
     "Counties Map Overlay": uscountieslyr,
+    "VA Electric Territories": VA_electric_flyr,
+    "ROOFS SOLAR MAP": gradiant_heat_lyr,
     // "Trees & Graphics": trees_layer,
     // "Clouds": clouds_layer
     };
-     mylayercontrol= L.control.layers(baseLayers,overLays).addTo(map);
+     mylayercontrol= L.control.layers(baseLayers,overLays,{collapsed:false}).addTo(map);
+     
 },2500)
+
 
 
 
@@ -413,6 +442,265 @@ function flyTotritory(u_id) {
 
 
   
+
+
+
+
+
+
+
+$('#legenddiv').css('visibility','hidden');
+var furl='https://services3.arcgis.com/Ww6Zhg5FR2pLMf1C/arcgis/rest/services/VA_Electric_2016/FeatureServer/0';
+ VA_electric_flyr=L.esri.featureLayer({
+    url: furl,
+    opacity: 1,
+    style: (feature) => {
+        let style = {
+            fillColor: "black",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+        };
+        if (feature.properties.Utility === "Appalachian Power Company") {
+            return {
+            fillColor: "#E08F94",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        // style.fillColor = "red";
+      
+        } 
+        else if (feature.properties.Utility === "Kentucky Utilities/Old Dominion Power Company") {
+            return {
+            fillColor: "#70AE8F",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Dominion Virginia Power") {
+            return {
+            fillColor: "yellow",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "A&N Electric Cooperative") {
+            return {
+            fillColor: "#F6C39F",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "BARC Electric Cooperative") {
+            return {
+            fillColor: "green",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Craig Botetourt Electric Cooperative") {
+            return {
+            fillColor: "#92E660",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Community Electric Cooperative") {
+            return {
+            fillColor: "#B4D3B2",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Central Virginia Electric Cooperative") {
+            return {
+            fillColor: "#74DBEF",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Mecklenburg Electric Cooperative") {
+            return {
+            fillColor: "#F9DAD3",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Northern Neck Electric Cooperative") {
+            return {
+            fillColor: "#F9EED5",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Northern Virginia Electric Cooperative") {
+            return {
+            fillColor: "#C4B697",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Powell Valley Electric Cooperative") {
+            return {
+            fillColor: "#9C9D9A",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Prince George Electric Cooperative") {
+            return {
+            fillColor: "#6f03fc",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Rappahannock Electric Cooperative") {
+            return {
+            fillColor: "#C2E3E8",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Southside Electric Cooperative") {
+            return {
+            fillColor: "#EBE8E3",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+        else if (feature.properties.Utility === "Shenandoah Valley Electric Cooperative") {
+            return {
+            fillColor: "blue",
+            weight: 0.3,
+            opacity: 1,
+            color:"black",
+            dashArray: '2',
+            fillOpacity: 0.8
+            };
+        } 
+
+        else {
+        style.fillColor = "black";
+        }
+
+        return style;
+    }
+});
+  
+
+
+  VA_electric_flyr.bindPopup(function (layer) {
+      console.log(layer);
+      // return L.Util.template("<b>District</b><br>{district_n}</br>", layer.feature.properties);
+      // return L.Util.template('<b>Utility: </b>{Utility}<br><b>Phone: </b>{Phone}</br><b>Website: </b><a href="https://{Website}/" target="_blank">{Website}</a></br><b>Provider: </b>{Provider}</br><b>Provider_1: </b>{Provider_1}</br>', layer.feature.properties);
+      return L.Util.template('<b>Utility: </b>{Utility}<br><b>Phone: </b>{Phone}</br><b>Website: </b>{Website}</br><b>Provider: </b>{Provider}</br><b>Provider_1: </b>{Provider_1}</br>', layer.feature.properties);
+  
+  });
+
+
+
+
+
+  map.on('overlayadd', function(e) {
+    if(e.name=="VA Electric Territories"){
+        // $('#legenddiv').show();
+        setTimeout(function(){
+        $('#legenddiv').css('visibility','visible');
+        console.log('Changed to ' + e.name);
+        }, 2000);  
+    }
+    if(e.name=="ROOFS SOLAR MAP"){
+      // map.getPane("tilePane").style.zIndex = 800;
+      map.addLayer(co2lyr)
+      // map.setView([38.88714129486354, -77.07550227642061], 18);
+      var cuurent_zoom=map.getZoom()
+      if(cuurent_zoom<17){
+        map.setView([38.84534810596939, -77.3061454296112], 17);
+      }
+
+      setTimeout(function(){
+        if(map.hasLayer(territories_lyr)){ //the old DistrictLayer
+          map.removeLayer(territories_lyr)
+        }
+      }, 500); 
+      
+    }
+    
+});
+map.on('overlayremove', function(e) {
+    if(e.name=="VA Electric Territories"){
+        $('#legenddiv').css('visibility','hidden');
+        console.log('Changed to ' + e.name);
+    }
+    if(e.name=="ROOFS SOLAR MAP"){
+      map.removeLayer(co2lyr)
+      // map.setView([38.57389610087847,-77.81616160646082], 9); 
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

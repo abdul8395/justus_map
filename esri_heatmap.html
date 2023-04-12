@@ -1,0 +1,145 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Style a heat map</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" crossorigin=""></script>
+    <!-- Load Esri Leaflet from CDN -->
+    <script src="https://unpkg.com/esri-leaflet@3.0.10/dist/esri-leaflet.js"></script>
+    <!-- Load Esri Leaflet Vector from CDN -->
+    <script src="https://unpkg.com/esri-leaflet-vector@4.0.1/dist/esri-leaflet-vector.js" crossorigin=""></script>
+    <style>
+      html,
+      body,
+      #map {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        color: #323232;
+      }
+      #info-pane {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 999999;
+        padding: 1em;
+        background: white;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Include Leaflet.heat from CDN -->
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    <!-- Load Heatmap Feature Layer from CDN -->
+    <script src="https://unpkg.com/esri-leaflet-heatmap@2.0.0"></script>
+    <div id="map">
+        <div id="info-pane" class="leaflet-bar">Hover to Inspect</div>
+    </div>
+    <script>
+      const apiKey = "YOUR_API_KEY";
+
+      const map = L.map("map", {
+        // maxZoom: 16 // the heatmap plugin needs some help understanding the map's maxZoom
+      }).setView([38.92085531975362, -77.54955053329469], 17);
+
+    //   L.esri.Vector.vectorBasemapLayer("ArcGIS:LightGray", {
+    //     apikey: apiKey
+    //   }).addTo(map);
+    
+//   var openstreet   = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        var Esri_WorldImagery = L.esri.basemapLayer('Imagery').addTo(map);
+
+
+       //  ......................Gradiant OR Heat MAP of NVRC................. 
+       var gradiant_heat_lyr=L.esri.tiledMapLayer({
+        url:"https://tiles.arcgis.com/tiles/6MUPhDX27Ne3DNOw/arcgis/rest/services/NVA_TPK/MapServer",
+      }).addTo(map);
+
+      map.getPane("tilePane").style.zIndex = 800;
+
+
+     
+
+
+
+
+            var co2lyr=L.esri.featureLayer({
+                url: "https://services5.arcgis.com/6MUPhDX27Ne3DNOw/arcgis/rest/services/BuildingFootprintCO2/FeatureServer/0",
+                style: function(feature) {
+                    return {
+                        color: "#ff0000",
+                        fillColor: "#00ff00",
+                        fillColor: "linearGradient(90deg, red, yellow, blue, orange)",
+                        fillColor: "radialGradient(50%, 50%, 50%, 50%, 50%, red, yellow, blue, orange)",
+                        fillOpacity: 1
+                    };
+                }
+            }).addTo(map)
+            // co2lyr.bindPopup("<b>Area:</b> 55480.73615 <br> <b>CO2Ton:</b> 273.749 <br> <b>PctArea:</b> 40.4950471714 <br> <b>Shape_Area:</b> 5154.78446278 <br> <b>Shape_Leng:</b> 307.258819119")
+            // co2lyr.bindPopup(function (layer) {
+            // console.log(layer);
+            // // return L.Util.template('<b>Utility: </b>{Utility}<br><b>Phone: </b>{Phone}</br><b>Website: </b>{Website}</br><b>Provider: </b>{Provider}</br><b>Provider_1: </b>{Provider_1}</br>', layer.feature.properties);
+            // });
+
+            var circlemarker
+            // ...............this works on double click..............
+            co2lyr.on("click", function (e) {
+                console.log(e.layer);
+                var prop=e.layer.feature.properties
+                // var area=parseFloat(stringValue).toFixed(2);
+                co2lyr.bindPopup("<b>Address: </b>"+prop.Address+"<br> <b>Roof Area: </b> "+parseFloat(prop.Area).toFixed(2)+" Sq.Ft. <br> <b>Usable Roof Area #: </b>"+parseFloat(prop.UsblArea).toFixed(2)+" Sq.Ft <br> <b>Usable Roof Area %: </b> "+parseFloat(prop.PctArea).toFixed(2)+" % <br> <b>Solar System Size: </b>"+parseFloat(prop.SysSize).toFixed(2)+" kW <br> <b>Electricity Savings: $</b>"+parseFloat(prop.Savings).toFixed(2)+"<br> <b>Annual CO2 Averted: </b>"+parseFloat(prop.CO2Ton).toFixed(2)+" Tonz")
+                // var lat=e.layer.feature.geometry.coordinates[0][0][1];
+                // var lng=e.layer.feature.geometry.coordinates[0][0][0];
+                // circlemarker = L.circleMarker([lat,lng] ).addTo(map);
+                // circlemarker.setStyle({
+                //     radius: 6,
+                //     fillColor: "#ff0000",
+                //     color: "#ff0000",
+                //     opacity: 1,
+                //     weight: 2,
+                //     fillOpacity: 1,
+                // });
+
+                // document.getElementById("info-pane").innerHTML = e.layer.feature.properties.ZIP + " " + e.layer.feature.properties.PO_NAME;
+                // zipcodes.setFeatureStyle(e.layer.feature.id, {
+                // color: "#9D78D2",
+                // weight: 3,
+                // opacity: 1
+                // });
+            });
+
+            let oldId;
+            co2lyr.on("mouseout", function (e) {
+                document.getElementById("info-pane").innerHTML = "Hover to Inspect";
+                co2lyr.resetFeatureStyle(oldId);
+            });
+
+            co2lyr.on("mouseover", function (e) {
+                oldId = e.layer.feature.id;
+                document.getElementById("info-pane").innerHTML ="Address: "+ e.layer.feature.properties.Address + "<br> AcresFores: " + e.layer.feature.properties.AcresFores+ "<br> Area: "  + e.layer.feature.properties.Area;
+                co2lyr.setFeatureStyle(e.layer.feature.id, {
+                color: "#9D78D2",
+                fillColor: "yellow",
+                weight: 3,
+                opacity: 1
+                });
+            });
+
+            // co2lyr.on("mouseover", function (e) {
+            //     var prop=e.layer.feature.properties
+            //     co2lyr.bindPopup("<b>Address: </b>"+prop.Address+"<br> <b>Roof Area: </b> "+parseFloat(prop.Area).toFixed(2)+" Sq.Ft. <br> <b>Usable Roof Area #: </b>"+parseFloat(prop.UsblArea).toFixed(2)+" Sq.Ft <br> <b>Usable Roof Area %: </b> "+parseFloat(prop.PctArea).toFixed(2)+" % <br> <b>Solar System Size: </b>"+parseFloat(prop.SysSize).toFixed(2)+" kW <br> <b>Electricity Savings: $</b>"+parseFloat(prop.Savings).toFixed(2)+"<br> <b>Annual CO2 Averted: </b>"+parseFloat(prop.CO2Ton).toFixed(2)+" Tonz")
+            
+            // });
+
+
+
+
+    </script>
+  </body>
+</html>
+
+
